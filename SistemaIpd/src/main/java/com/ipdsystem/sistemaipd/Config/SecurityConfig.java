@@ -59,14 +59,14 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/v1/mensajes/conversacion/{otroUsuarioId}/{otroUsuarioRol}").hasAnyRole("DEPORTISTA", "ENTRENADOR")
                         .requestMatchers(HttpMethod.PUT, "/api/v1/mensajes/{mensajeId}/leido").hasAnyRole("DEPORTISTA", "ENTRENADOR")
                         .requestMatchers(HttpMethod.GET, "/api/v1/mensajes/no-leidos/conteo").hasAnyRole("DEPORTISTA", "ENTRENADOR")
+                        // --- LÍNEA AÑADIDA ---
+                        .requestMatchers(HttpMethod.GET, "/api/v1/mensajes/no-leidos/por-remitente").hasAnyRole("DEPORTISTA", "ENTRENADOR")
+                        // --- FIN DE LA LÍNEA AÑADIDA ---
                         // Admin también puede acceder a todos los endpoints REST de mensajes
                         .requestMatchers("/api/v1/mensajes/**").hasRole("ADMINISTRADOR")
 
                         // --- REGLAS PARA WEBSOCKETS ---
-                        // Permite el handshake de WebSocket para todos los autenticados.
-                        // La seguridad a nivel de mensaje (dentro del controlador @MessageMapping)
-                        // es donde se validará quién puede enviar/recibir qué.
-                        .requestMatchers("/ws/**").authenticated() // Permitir la conexión al endpoint WebSocket
+                        .requestMatchers("/ws/**").authenticated()
 
                         // REGLAS GENERALES para administradores
                         .requestMatchers("/api/v1/administradores/**").hasRole("ADMINISTRADOR")

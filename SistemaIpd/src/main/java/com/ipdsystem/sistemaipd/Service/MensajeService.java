@@ -8,12 +8,14 @@ import com.ipdsystem.sistemaipd.Entity.Mensaje;
 import com.ipdsystem.sistemaipd.Repository.DeportistaRepository;
 import com.ipdsystem.sistemaipd.Repository.EntrenadorRepository;
 import com.ipdsystem.sistemaipd.Repository.MensajeRepository;
+import com.ipdsystem.sistemaipd.Repository.UnreadMessageCountBySender; // <-- IMPORTACIÓN NUEVA
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Map; // <-- IMPORTACIÓN NUEVA
 import java.util.stream.Collectors;
 import java.util.ArrayList;
 
@@ -97,5 +99,22 @@ public class MensajeService {
         }
 
         return dto;
+    }
+
+    // --- NUEVO MÉTODO AÑADIDO ---
+    /**
+     * Obtiene el conteo de mensajes no leídos por cada remitente.
+     * @param userId ID del usuario receptor.
+     * @param userRol Rol del usuario receptor.
+     * @return Un mapa donde la clave es el ID del remitente y el valor es el número de mensajes no leídos.
+     */
+    @Transactional(readOnly = true)
+    public Map<Long, Long> getUnreadMessageCountBySender(Long userId, String userRol) {
+        List<UnreadMessageCountBySender> counts = mensajeRepository.countUnreadMessagesBySender(userId, userRol);
+        return counts.stream()
+                .collect(Collectors.toMap(
+                        UnreadMessageCountBySender::getRemitenteId,
+                        UnreadMessageCountBySender::getCount
+                ));
     }
 }

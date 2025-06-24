@@ -25,4 +25,11 @@ public interface MensajeRepository extends JpaRepository<Mensaje, Long> {
     @Query("SELECT COUNT(m) FROM Mensaje m WHERE " +
             "m.receptorId = :userId AND m.receptorRol = :userRol AND m.leido = false")
     long countUnreadMessagesForUser(Long userId, String userRol);
+
+
+    // --- MÉTODO ACTUALIZADO (la consulta es la misma, solo se ha movido la interfaz a su propio archivo) ---
+    @Query("SELECT m.remitenteId as remitenteId, COUNT(m.id) as count FROM Mensaje m WHERE " +
+            "m.receptorId = :userId AND m.receptorRol = :userRol AND m.leido = false " +
+            "GROUP BY m.remitenteId")
+    List<UnreadMessageCountBySender> countUnreadMessagesBySender(Long userId, String userRol);
 }
