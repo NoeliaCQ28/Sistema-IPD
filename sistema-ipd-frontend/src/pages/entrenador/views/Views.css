@@ -1,0 +1,208 @@
+/*
+ * Styles for the main content views within a layout
+ */
+
+/* --- Contenedor General de la Vista --- */
+.view-container {
+    padding: 1rem;
+    animation: fadeIn 0.5s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.view-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.view-header h1 {
+    margin: 0;
+    color: #333;
+    font-size: 2rem;
+}
+
+.view-actions {
+    display: flex;
+    gap: 1rem;
+}
+
+.action-button-view {
+    padding: 0.7rem 1.2rem;
+    border: none;
+    border-radius: 8px;
+    font-weight: bold;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.action-button-view.primary { background-color: #007bff; color: white; }
+.action-button-view.primary:hover { background-color: #0056b3; transform: translateY(-2px); box-shadow: 0 4px 10px rgba(0, 123, 255, 0.3); }
+
+.action-button-view.secondary { background-color: #6c757d; color: white; }
+.action-button-view.secondary:hover { background-color: #5a6268; transform: translateY(-2px); box-shadow: 0 4px 10px rgba(108, 117, 125, 0.3); }
+
+/* --- Tarjetas de Deportistas (Vista 'Mis Deportistas') --- */
+.athlete-cards-container-view {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1.5rem;
+}
+
+.athlete-card-view {
+    background-color: #fff;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+    overflow: hidden;
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+.athlete-card-view:hover { transform: translateY(-5px); box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12); }
+.athlete-card-header { display: flex; align-items: center; padding: 1rem; gap: 1rem; }
+.athlete-card-header img { width: 50px; height: 50px; border-radius: 50%; object-fit: cover; }
+.athlete-card-info { display: flex; flex-direction: column; }
+.athlete-card-info strong { font-size: 1.1rem; color: #2c3e50; }
+.athlete-card-info span { color: #7f8c8d; font-size: 0.9rem; }
+.athlete-card-actions { background-color: #f8f9fa; padding: 0.75rem 1rem; display: flex; justify-content: flex-end; gap: 0.5rem; border-top: 1px solid #e9ecef; }
+.athlete-card-actions button { background: transparent; border: 1px solid #ced4da; color: #495057; padding: 0.4rem 0.8rem; border-radius: 6px; font-size: 0.85rem; font-weight: 600; cursor: pointer; transition: background-color 0.2s, color 0.2s; }
+.athlete-card-actions button:hover { background-color: #e9ecef; color: #000; }
+
+/* ======================================================= */
+/* ---             NUEVOS ESTILOS PARA DASHBOARD         --- */
+/* ======================================================= */
+
+.dashboard-view .welcome-message {
+    color: #6c757d;
+    font-size: 1rem;
+    margin: 0;
+}
+
+/* --- Grid de Estadísticas --- */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.stat-card {
+    background: linear-gradient(135deg, #ffffff, #f1f4f8);
+    border-radius: 12px;
+    padding: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.06);
+    border: 1px solid #e9ecef;
+}
+
+.stat-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-size: 50%;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+/* Iconos (puedes usar SVGs reales aquí) */
+.stat-icon.deportistas { background-color: #e0f7fa; background-image: url('data:image/svg+xml,...'); /* SVG de un corredor */ }
+.stat-icon.horarios { background-color: #fff3e0; background-image: url('data:image/svg+xml,...'); /* SVG de un calendario */ }
+.stat-icon.progresos { background-color: #e8f5e9; background-image: url('data:image/svg+xml,...'); /* SVG de un gráfico */ }
+
+.stat-info h2 {
+    margin: 0;
+    font-size: 2.5rem;
+    color: #343a40;
+}
+
+.stat-info p {
+    margin: 0;
+    color: #6c757d;
+    font-weight: 500;
+}
+
+/* --- Grid de Widgets --- */
+.dashboard-widgets {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+}
+
+.widget {
+    background-color: #fff;
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.06);
+}
+
+.widget h3 {
+    margin-top: 0;
+    margin-bottom: 1.5rem;
+    color: #495057;
+    font-size: 1.2rem;
+    border-bottom: 1px solid #f1f1f1;
+    padding-bottom: 0.75rem;
+}
+
+.widget-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.widget-list-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid #f8f9fa;
+}
+
+.widget-list-item:last-child {
+    border-bottom: none;
+}
+
+.widget-list-item span {
+    color: #495057;
+}
+
+.widget-list-item .item-date {
+    color: #adb5bd;
+    font-size: 0.85rem;
+    flex-shrink: 0;
+    margin-left: 1rem;
+}
+
+.widget-link {
+    display: block;
+    margin-top: 1.5rem;
+    text-align: right;
+    color: #007bff;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.widget-link:hover {
+    text-decoration: underline;
+}
+
+/* Responsive para los widgets */
+@media (max-width: 992px) {
+    .dashboard-widgets {
+        grid-template-columns: 1fr;
+    }
+}

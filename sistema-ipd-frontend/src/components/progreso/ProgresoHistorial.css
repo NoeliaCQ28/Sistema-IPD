@@ -1,0 +1,56 @@
+/* src/components/progreso/ProgresoHistorial.css */
+
+.progreso-historial-container {
+    background-color: #fff;
+    padding: 1.5rem;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+
+.progreso-historial-container h4 {
+    margin-top: 0;
+    margin-bottom: 1rem;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 0.5rem;
+    color: #333;
+}
+
+.progreso-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 15px;
+}
+
+.progreso-table th, .progreso-table td {
+    text-align: left;
+    padding: 0.75rem;
+    border-bottom: 1px solid #eee;
+    font-size: 0.9rem;
+}
+
+.progreso-table thead th {
+    background-color: #c52127;
+    color: white;
+}
+
+.progreso-table tbody tr:nth-child(even) {
+    background-color: #f8f8f8;
+}
+
+.progreso-table tbody tr:hover {
+    background-color: #f1f1f1;
+}
+
+.progreso-table td {
+    vertical-align: top;
+}
+
+.progreso-table p.error-message {
+    color: #c52127;
+    background-color: #fce8e6;
+    border: 1px solid #c52127;
+    padding: 10px;
+    border-radius: 8px;
+    margin-top: 20px;
+    font-size: 0.9rem;
+}

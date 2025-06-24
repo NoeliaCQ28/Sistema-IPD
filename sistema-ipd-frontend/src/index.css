@@ -1,0 +1,24 @@
+/* src/index.css */
+:root {
+  --ipd-red: #D90429;
+  --ipd-dark: #2D3748;
+  --ipd-light-gray: #F7FAFC;
+  --ipd-medium-gray: #E2E8F0;
+  --ipd-white: #FFFFFF;
+  --ipd-success: #5cb85c;
+  --ipd-warning: #f0ad4e;
+}
+
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: var(--ipd-light-gray); /* Fondo general de la app */
+}
+
+h1, h2, h3, h4, h5, h6 {
+  color: var(--ipd-dark);
+}
