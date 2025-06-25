@@ -67,8 +67,13 @@ public class Entrenador implements UserDetails {
     @EqualsAndHashCode.Exclude
     private Set<ProgresoDeportista> progresosRegistrados = new HashSet<>();
 
-    // NOTA: No incluimos @OneToMany para Mensaje aquí. Mensaje maneja remitente/receptor por ID y Rol.
-
+    // --- NUEVA RELACIÓN AÑADIDA ---
+    @OneToMany(mappedBy = "entrenador", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @JsonManagedReference("entrenador-asistencia")
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
+    private Set<Asistencia> asistenciasRegistradas = new HashSet<>();
+    // --- FIN DE LA NUEVA RELACIÓN ---
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

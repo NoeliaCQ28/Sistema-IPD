@@ -23,13 +23,17 @@ import DeportistaHomePage from './pages/deportista/DeportistaHomePage';
 
 // Componentes adicionales
 import ProgresoHistorial from './components/progreso/ProgresoHistorial';
+import AsistenciaHistorial from './components/asistencia/AsistenciaHistorial';
 
-// --- NUEVAS IMPORTACIONES PARA EL PANEL DE ENTRENADOR ---
+// --- IMPORTACIONES PARA EL PANEL DE ENTRENADOR ---
 import EntrenadorLayout from './pages/entrenador/EntrenadorLayout';
 import DashboardView from './pages/entrenador/views/DashboardView';
 import DeportistasView from './pages/entrenador/views/DeportistasView';
 import ProgresoView from './pages/entrenador/views/ProgresoView';
-import HorariosView from './pages/entrenador/views/HorariosView'; // <-- NUEVA IMPORTACIÓN
+import HorariosView from './pages/entrenador/views/HorariosView';
+import AsistenciaView from './pages/entrenador/views/AsistenciaView';
+import ProfileView from './pages/entrenador/views/ProfileView';
+import AnalisisProgresoView from './pages/entrenador/views/AnalisisProgresoView';
 
 
 function App() {
@@ -49,6 +53,7 @@ function App() {
                 <Route path="deportistas/editar/:id" element={<DeportistaForm />} />
                 <Route path="deportistas/ver/:id" element={<DeportistaDetalle />} />
                 <Route path="deportistas/ver/:deportistaId/progresos" element={<ProgresoHistorial />} /> 
+                <Route path="deportistas/ver/:deportistaId/asistencias" element={<AsistenciaHistorial />} />
                 <Route path="entrenadores" element={<EntrenadorPortal />} />
                 <Route path="entrenadores/nuevo" element={<EntrenadorForm />} />
                 <Route path="entrenadores/editar/:id" element={<EntrenadorForm />} />
@@ -72,10 +77,14 @@ function App() {
               <Route path="dashboard" element={<DashboardView />} />
               <Route path="mis-deportistas" element={<DeportistasView />} />
               <Route path="progreso" element={<ProgresoView />} />
-              <Route path="horarios" element={<HorariosView />} /> {/* <-- NUEVA RUTA AÑADIDA */}
+              <Route path="horarios" element={<HorariosView />} />
+              <Route path="asistencia" element={<AsistenciaView />} /> 
+              <Route path="perfil" element={<ProfileView />} />
+              <Route path="analisis" element={<AnalisisProgresoView />} />
               
               <Route path="deportistas/ver/:id" element={<DeportistaDetalle />} /> 
-              <Route path="deportistas/ver/:deportistaId/progresos" element={<ProgresoHistorial />} /> 
+              <Route path="deportistas/ver/:deportistaId/progresos" element={<ProgresoHistorial />} />
+              <Route path="deportistas/ver/:deportistaId/asistencias" element={<AsistenciaHistorial />} />
             </Route>
           </Route>
           

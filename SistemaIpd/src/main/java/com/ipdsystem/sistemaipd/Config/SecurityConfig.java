@@ -55,9 +55,17 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.PUT, "/api/v1/entrenadores/{entrenadorId}/progresos/{progresoId}").hasAnyRole("ENTRENADOR", "ADMINISTRADOR")
                         .requestMatchers(HttpMethod.DELETE, "/api/v1/entrenadores/{entrenadorId}/progresos/{progresoId}").hasAnyRole("ENTRENADOR", "ADMINISTRADOR")
 
-                        // --- NUEVAS REGLAS PARA GESTIONAR HORARIOS ---
+                        // Reglas para gestionar Horarios
                         .requestMatchers(HttpMethod.PUT, "/api/v1/horarios/{id}").hasRole("ENTRENADOR")
                         .requestMatchers(HttpMethod.DELETE, "/api/v1/horarios/{id}").hasRole("ENTRENADOR")
+
+                        // Reglas para Asistencia
+                        .requestMatchers(HttpMethod.GET, "/api/v1/asistencias/entrenador/{entrenadorId}").hasAnyRole("ENTRENADOR", "ADMINISTRADOR")
+                        .requestMatchers(HttpMethod.POST, "/api/v1/asistencias/entrenador/{entrenadorId}").hasAnyRole("ENTRENADOR", "ADMINISTRADOR")
+                        .requestMatchers(HttpMethod.GET, "/api/v1/asistencias/deportista/{deportistaId}").hasAnyRole("DEPORTISTA", "ENTRENADOR", "ADMINISTRADOR")
+
+                        // --- NUEVA REGLA AÑADIDA PARA ANÁLISIS ---
+                        .requestMatchers(HttpMethod.GET, "/api/v1/analisis/**").hasAnyRole("ENTRENADOR", "ADMINISTRADOR")
 
                         // Rutas de Mensajería
                         .requestMatchers(HttpMethod.POST, "/api/v1/mensajes/enviar").hasAnyRole("DEPORTISTA", "ENTRENADOR")

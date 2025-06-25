@@ -1,0 +1,68 @@
+/* src/pages/entrenador/views/AnalisisProgresoView.css */
+
+.analisis-filtros {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.5rem;
+    align-items: flex-end;
+    padding: 1.5rem;
+    background-color: #fff;
+    border-radius: 8px;
+    margin-bottom: 2rem;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+
+.filtro-item {
+    display: flex;
+    flex-direction: column;
+}
+
+.filtro-item label {
+    font-weight: 600;
+    color: #4a5568;
+    margin-bottom: 0.5rem;
+    font-size: 0.9rem;
+}
+
+.filtro-item input[type="date"] {
+    padding: 0.6rem;
+    border: 1px solid #cbd5e0;
+    border-radius: 6px;
+    font-size: 1rem;
+}
+
+/* Estilo para el botón dentro del grid */
+.filtro-item-button {
+    align-self: flex-end;
+}
+
+.filtro-item-button .action-button-view {
+    width: 100%;
+    padding: 0.65rem;
+}
+
+.grafico-container {
+    background-color: #fff;
+    padding: 2rem;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    min-height: 400px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.grafico-placeholder {
+    color: #a0aec0;
+    font-size: 1.2rem;
+    text-align: center;
+}
+
+.error-message {
+    background-color: #fef2f2;
+    color: #ef4444;
+    padding: 1rem;
+    border-radius: 8px;
+    margin-bottom: 1.5rem;
+    border: 1px solid #fecaca;
+}

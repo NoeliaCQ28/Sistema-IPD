@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '../../../context/AuthContext';
 import Modal from '../../../components/Modal';
 import ProgresoForm from '../../../components/progreso/ProgresoForm';
+import Papa from 'papaparse'; // <-- NUEVA IMPORTACIÓN
 import './Views.css';
 
 const ProgresoView = () => {
@@ -15,9 +16,7 @@ const ProgresoView = () => {
     const [editingProgreso, setEditingProgreso] = useState(null);
 
     const fetchData = useCallback(async () => {
-        if (!user?.id || !authHeader) {
-            return;
-        }
+        if (!user?.id || !authHeader) return;
         
         setLoading(true);
         setError(null);
@@ -58,43 +57,60 @@ const ProgresoView = () => {
         fetchData();
     };
 
-    // --- NUEVA FUNCIÓN PARA ELIMINAR ---
     const handleDelete = async (progresoId) => {
-        // Usamos una confirmación simple para evitar borrados accidentales
-        if (!window.confirm('¿Estás seguro de que quieres eliminar este registro de progreso?')) {
-            return;
-        }
+        if (!window.confirm('¿Estás seguro de que quieres eliminar este registro de progreso?')) return;
 
         try {
             const response = await fetch(`http://localhost:8081/api/v1/entrenadores/${user.id}/progresos/${progresoId}`, {
                 method: 'DELETE',
                 headers: { 'Authorization': authHeader }
             });
-
-            if (!response.ok) {
-                throw new Error('No se pudo eliminar el registro.');
-            }
-
-            // Si se elimina correctamente, recargamos la lista
+            if (!response.ok) throw new Error('No se pudo eliminar el registro.');
             fetchData();
-
         } catch (err) {
-            // Mostramos el error al usuario
             alert(`Error al eliminar: ${err.message}`);
-            console.error("Error al eliminar progreso:", err);
         }
     };
+    
+    // --- NUEVA FUNCIÓN PARA EXPORTAR ---
+    const handleExportCSV = () => {
+        if (progresos.length === 0) {
+            alert("No hay datos para exportar.");
+            return;
+        }
 
+        const dataToExport = progresos.map(p => ({
+            'Fecha Registro': new Date(p.fechaRegistro + 'T00:00:00').toLocaleDateString('es-ES'),
+            'Deportista': p.deportistaNombreCompleto,
+            'Métrica': p.tipoMebrica,
+            'Valor': p.valor,
+            'Observaciones': p.observaciones || 'N/A',
+            'Fecha de Creación': new Date(p.fechaCreacion).toLocaleString('es-ES')
+        }));
 
-    if (loading && !error) {
-        return <p>Cargando historial de progreso...</p>;
-    }
+        const csv = Papa.unparse(dataToExport);
+        const blob = new Blob(["\uFEFF" + csv], { type: 'text/csv;charset=utf-8;' });
+        
+        const link = document.createElement("a");
+        const url = URL.createObjectURL(blob);
+        link.setAttribute("href", url);
+        link.setAttribute("download", `historial_progreso_general.csv`);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    };
+    // --- FIN DE LA NUEVA FUNCIÓN ---
+
+    if (loading && !error) return <p>Cargando historial de progreso...</p>;
     
     return (
         <div className="view-container">
             <header className="view-header">
                 <h1>Historial de Progreso</h1>
                 <div className="view-actions">
+                    <button onClick={handleExportCSV} className="action-button-view secondary">
+                        Exportar a CSV
+                    </button>
                     <button className="action-button-view primary" onClick={() => handleOpenModal()}>
                         + Registrar Nuevo Progreso
                     </button>
@@ -128,7 +144,6 @@ const ProgresoView = () => {
                                         <td>
                                             <div className="table-actions">
                                                 <button className="action-button edit" onClick={() => handleOpenModal(p)}>Editar</button>
-                                                {/* --- BOTÓN DE ELIMINAR AÑADIDO --- */}
                                                 <button className="action-button delete" onClick={() => handleDelete(p.id)}>Eliminar</button>
                                             </div>
                                         </td>

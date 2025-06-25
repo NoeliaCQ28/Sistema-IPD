@@ -1,10 +1,10 @@
 package com.ipdsystem.sistemaipd.Entity;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
-import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import jakarta.persistence.*;
 import lombok.Data;
@@ -68,8 +68,13 @@ public class Deportista implements UserDetails {
     @EqualsAndHashCode.Exclude
     private Set<ProgresoDeportista> progresos = new HashSet<>();
 
-    // NOTA: No incluimos @OneToMany para Mensaje aquí. Mensaje maneja remitente/receptor por ID y Rol.
-
+    // --- NUEVA RELACIÓN AÑADIDA ---
+    @OneToMany(mappedBy = "deportista", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @JsonManagedReference("deportista-asistencia")
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
+    private Set<Asistencia> asistencias = new HashSet<>();
+    // --- FIN DE LA NUEVA RELACIÓN ---
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

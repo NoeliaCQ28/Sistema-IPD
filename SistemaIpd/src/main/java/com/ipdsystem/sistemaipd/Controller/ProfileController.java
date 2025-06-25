@@ -1,21 +1,24 @@
 package com.ipdsystem.sistemaipd.Controller;
 
-import com.ipdsystem.sistemaipd.Dto.ChangePasswordRequestDTO; // <<<--- ¡AÑADIR ESTA IMPORTACIÓN!
-import com.ipdsystem.sistemaipd.Entity.Administrador; // <<<--- ¡AÑADIR ESTA IMPORTACIÓN!
-import com.ipdsystem.sistemaipd.Entity.Deportista; // <<<--- ¡AÑADIR ESTA IMPORTACIÓN!
-import com.ipdsystem.sistemaipd.Entity.Entrenador; // <<<--- ¡AÑADIR ESTA IMPORTACIÓN!
-import com.ipdsystem.sistemaipd.Repository.AdministradorRepository; // <<<--- ¡AÑADIR ESTA IMPORTACIÓN!
-import com.ipdsystem.sistemaipd.Repository.DeportistaRepository; // <<<--- ¡AÑADIR ESTA IMPORTACIÓN!
-import com.ipdsystem.sistemaipd.Repository.EntrenadorRepository; // <<<--- ¡AÑADIR ESTA IMPORTACIÓN!
-import jakarta.persistence.EntityNotFoundException; // <<<--- ¡AÑADIR ESTA IMPORTACIÓN!
+import com.ipdsystem.sistemaipd.Dto.ChangePasswordRequestDTO;
+import com.ipdsystem.sistemaipd.Dto.EntrenadorProfileUpdateDTO; // <-- NUEVA IMPORTACIÓN
+import com.ipdsystem.sistemaipd.Entity.Administrador;
+import com.ipdsystem.sistemaipd.Entity.Deportista;
+import com.ipdsystem.sistemaipd.Entity.Entrenador;
+import com.ipdsystem.sistemaipd.Repository.AdministradorRepository;
+import com.ipdsystem.sistemaipd.Repository.DeportistaRepository;
+import com.ipdsystem.sistemaipd.Repository.EntrenadorRepository;
+import com.ipdsystem.sistemaipd.Service.EntrenadorService; // <-- NUEVA IMPORTACIÓN
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal; // <<<--- ¡AÑADIR ESTA IMPORTACIÓN!
-import org.springframework.security.core.userdetails.UserDetails; // <<<--- ¡AÑADIR ESTA IMPORTACIÓN!
-import org.springframework.security.crypto.password.PasswordEncoder; // <<<--- ¡AÑADIR ESTA IMPORTACIÓN!
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Map;
 import java.util.Optional;
 
 @RestController
@@ -34,42 +37,62 @@ public class ProfileController {
     @Autowired
     private EntrenadorRepository entrenadorRepository;
 
+    @Autowired
+    private EntrenadorService entrenadorService; // <-- NUEVO CAMPO
 
     @PutMapping("/change-password")
-    public ResponseEntity<String> changePassword(@RequestBody ChangePasswordRequestDTO request,
-                                                 @AuthenticationPrincipal UserDetails currentUser) {
-        String username = currentUser.getUsername(); // Correo del usuario logueado
+    public ResponseEntity<?> changePassword(@RequestBody ChangePasswordRequestDTO request,
+                                            @AuthenticationPrincipal UserDetails currentUser) {
+        String username = currentUser.getUsername();
 
-        // Intentar encontrar al usuario en todas las tablas por su correo
+        // Lógica para cambiar contraseña (ya existente)
         Optional<Administrador> adminOpt = administradorRepository.findByCorreo(username);
-        Optional<Deportista> deportistaOpt = deportistaRepository.findByCorreo(username);
-        Optional<Entrenador> entrenadorOpt = entrenadorRepository.findByCorreo(username);
-
-        // Verificar y actualizar la contraseña del tipo de usuario encontrado
         if (adminOpt.isPresent()) {
             Administrador admin = adminOpt.get();
             if (passwordEncoder.matches(request.getOldPassword(), admin.getPassword())) {
                 admin.setPassword(passwordEncoder.encode(request.getNewPassword()));
                 administradorRepository.save(admin);
-                return ResponseEntity.ok("Contraseña de Administrador actualizada con éxito.");
+                return ResponseEntity.ok(Map.of("message", "Contraseña de Administrador actualizada con éxito."));
             }
-        } else if (deportistaOpt.isPresent()) {
+        }
+
+        Optional<Deportista> deportistaOpt = deportistaRepository.findByCorreo(username);
+        if (deportistaOpt.isPresent()) {
             Deportista deportista = deportistaOpt.get();
             if (passwordEncoder.matches(request.getOldPassword(), deportista.getPassword())) {
                 deportista.setPassword(passwordEncoder.encode(request.getNewPassword()));
                 deportistaRepository.save(deportista);
-                return ResponseEntity.ok("Contraseña de Deportista actualizada con éxito.");
+                return ResponseEntity.ok(Map.of("message", "Contraseña de Deportista actualizada con éxito."));
             }
-        } else if (entrenadorOpt.isPresent()) {
+        }
+
+        Optional<Entrenador> entrenadorOpt = entrenadorRepository.findByCorreo(username);
+        if (entrenadorOpt.isPresent()) {
             Entrenador entrenador = entrenadorOpt.get();
             if (passwordEncoder.matches(request.getOldPassword(), entrenador.getPassword())) {
                 entrenador.setPassword(passwordEncoder.encode(request.getNewPassword()));
                 entrenadorRepository.save(entrenador);
-                return ResponseEntity.ok("Contraseña de Entrenador actualizada con éxito.");
+                return ResponseEntity.ok(Map.of("message", "Contraseña de Entrenador actualizada con éxito."));
             }
         }
 
-        // Si la contraseña antigua es incorrecta o el usuario no fue encontrado en ninguna tabla
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Contraseña antigua incorrecta o usuario no encontrado.");
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "La contraseña antigua es incorrecta."));
+    }
+
+    // --- NUEVO ENDPOINT AÑADIDO ---
+    @PutMapping("/update")
+    public ResponseEntity<?> updateProfile(@RequestBody EntrenadorProfileUpdateDTO profileDTO, @AuthenticationPrincipal UserDetails currentUser) {
+        if (currentUser instanceof Entrenador) {
+            Long entrenadorId = ((Entrenador) currentUser).getId();
+            try {
+                entrenadorService.updateProfile(entrenadorId, profileDTO);
+                return ResponseEntity.ok(Map.of("message", "Perfil actualizado con éxito."));
+            } catch (Exception e) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("error", e.getMessage()));
+            }
+        }
+        // Aquí se podría añadir lógica para otros roles si fuera necesario
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of("error", "Esta función solo está disponible para entrenadores."));
     }
 }
+    

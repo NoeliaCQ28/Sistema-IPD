@@ -1,5 +1,6 @@
 package com.ipdsystem.sistemaipd.Service;
 
+import com.ipdsystem.sistemaipd.Dto.ProgresoDataDTO;
 import com.ipdsystem.sistemaipd.Dto.ProgresoDeportistaRequestDTO;
 import com.ipdsystem.sistemaipd.Dto.ProgresoDeportistaResponseDTO;
 import com.ipdsystem.sistemaipd.Entity.Deportista;
@@ -13,8 +14,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -30,22 +33,41 @@ public class ProgresoDeportistaService {
     @Autowired
     private EntrenadorRepository entrenadorRepository;
 
-    // --- MÉTODO CORREGIDO Y ROBUSTO ---
+    /**
+     * Obtiene los datos de progreso listos para ser consumidos por un gráfico.
+     * @param deportistaIds La lista de IDs de deportistas a consultar.
+     * @param tipoMebrica La métrica específica que se quiere graficar.
+     * @param fechaInicio La fecha de inicio del período de análisis.
+     * @param fechaFin La fecha de fin del período de análisis.
+     * @return Un mapa donde la clave es el nombre completo del deportista y el valor es una lista de sus puntos de datos (fecha y valor).
+     */
+    @Transactional(readOnly = true)
+    public Map<String, List<ProgresoDataDTO>> getProgresoParaGrafico(List<Long> deportistaIds, String tipoMebrica, LocalDate fechaInicio, LocalDate fechaFin) {
+
+        List<ProgresoDeportista> progresos = progresoDeportistaRepository.findProgresoForChart(deportistaIds, tipoMebrica, fechaInicio, fechaFin);
+
+        // Convertimos las entidades a DTOs para el gráfico.
+        List<ProgresoDataDTO> dataPoints = progresos.stream()
+                .map(p -> new ProgresoDataDTO(
+                        p.getDeportista().getNombres() + " " + p.getDeportista().getApellidos(),
+                        p.getFechaRegistro(),
+                        p.getValor()
+                ))
+                .collect(Collectors.toList());
+
+        // Agrupamos los puntos de datos por el nombre del deportista.
+        // Esto crea una serie de datos separada para cada deportista en el gráfico.
+        return dataPoints.stream()
+                .collect(Collectors.groupingBy(ProgresoDataDTO::getDeportistaNombre));
+    }
+
     @Transactional(readOnly = true)
     public List<ProgresoDeportistaResponseDTO> getProgresosByEntrenadorId(Long entrenadorId) {
-        // 1. Obtenemos la lista de la base de datos.
         List<ProgresoDeportista> progresos = progresoDeportistaRepository.findByEntrenadorIdOrderByFechaRegistroDesc(entrenadorId);
-
-        // 2. Creamos una nueva lista para los DTOs.
         List<ProgresoDeportistaResponseDTO> dtos = new ArrayList<>();
-
-        // 3. Iteramos explícitamente sobre los resultados DENTRO de la transacción.
         for (ProgresoDeportista progreso : progresos) {
-            // Este proceso fuerza la carga de los datos relacionados de forma segura.
             dtos.add(ProgresoDeportistaResponseDTO.fromEntity(progreso));
         }
-
-        // 4. Devolvemos la lista de DTOs ya construida.
         return dtos;
     }
 
@@ -56,7 +78,6 @@ public class ProgresoDeportistaService {
 
         List<ProgresoDeportista> progresos = deportista.getProgresos().stream().toList();
 
-        // Aplicamos la misma técnica para consistencia
         for (ProgresoDeportista progreso : progresos) {
             if (progreso.getEntrenador() != null) {
                 progreso.getEntrenador().getNombres();

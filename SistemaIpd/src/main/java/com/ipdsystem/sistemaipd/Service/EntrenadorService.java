@@ -1,12 +1,6 @@
 package com.ipdsystem.sistemaipd.Service;
 
-import com.ipdsystem.sistemaipd.Dto.DeportistaAsignadoDTO;
-import com.ipdsystem.sistemaipd.Dto.EntrenadorDetailDTO;
-import com.ipdsystem.sistemaipd.Dto.EntrenadorRequestDTO;
-import com.ipdsystem.sistemaipd.Dto.EntrenadorResponseDTO;
-import com.ipdsystem.sistemaipd.Dto.HorarioAsignacionRequestDTO;
-import com.ipdsystem.sistemaipd.Dto.ProgresoDeportistaRequestDTO;
-import com.ipdsystem.sistemaipd.Dto.ProgresoDeportistaResponseDTO;
+import com.ipdsystem.sistemaipd.Dto.*; // Importación comodín para DTOs
 import com.ipdsystem.sistemaipd.Entity.Deportista;
 import com.ipdsystem.sistemaipd.Entity.Entrenador;
 import com.ipdsystem.sistemaipd.Entity.HorarioEntrenamiento;
@@ -46,6 +40,21 @@ public class EntrenadorService {
         this.horarioEntrenamientoRepository = horarioEntrenamientoRepository;
         this.progresoDeportistaRepository = progresoDeportistaRepository;
     }
+
+    // --- NUEVO MÉTODO AÑADIDO ---
+    @Transactional
+    public Entrenador updateProfile(Long entrenadorId, EntrenadorProfileUpdateDTO profileDTO) {
+        Entrenador entrenador = entrenadorRepository.findById(entrenadorId)
+                .orElseThrow(() -> new EntityNotFoundException("Entrenador no encontrado con ID: " + entrenadorId));
+
+        // Actualiza solo los campos permitidos
+        entrenador.setCorreo(profileDTO.getCorreo());
+        entrenador.setTelefono(profileDTO.getTelefono());
+
+        return entrenadorRepository.save(entrenador);
+    }
+
+    // ... (resto de tus métodos existentes en EntrenadorService)
 
     @Transactional(readOnly = true)
     public List<DeportistaAsignadoDTO> getDeportistasAsignados(Long entrenadorId) {
@@ -223,3 +232,4 @@ public class EntrenadorService {
         return dto;
     }
 }
+    
