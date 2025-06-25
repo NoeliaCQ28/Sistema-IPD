@@ -1,9 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Select from 'react-select';
-// Puedes usar los estilos de los otros formularios
+import { useAuth } from '../../context/AuthContext';
+// Reutilizamos los estilos del formulario de progreso que ya tenemos
 import '../progreso/ProgresoForm.css';
 
-const AsignarHorarioForm = ({ deportistasAsignados, entrenadorId, authHeader, onHorarioAsignado, onCancel }) => {
+// El componente ahora acepta una prop `editingHorario`
+const AsignarHorarioForm = ({ deportistasAsignados, entrenadorId, onHorarioGuardado, onCancel, editingHorario }) => {
+    const { authHeader } = useAuth();
     const [selectedDeportista, setSelectedDeportista] = useState(null);
     const [dia, setDia] = useState('');
     const [horaInicio, setHoraInicio] = useState('');
@@ -16,6 +19,21 @@ const AsignarHorarioForm = ({ deportistasAsignados, entrenadorId, authHeader, on
         value: dep.id,
         label: `${dep.nombreCompleto} (${dep.disciplina})`
     }));
+
+    // Este efecto se ejecuta si pasamos un horario para editar,
+    // y llena el formulario con sus datos.
+    useEffect(() => {
+        if (editingHorario) {
+            const deportistaOption = deportistaOptions.find(opt => opt.value === editingHorario.resource.deportistaId);
+            setSelectedDeportista(deportistaOption || null);
+            setDia(editingHorario.resource.dia);
+            setActividad(editingHorario.resource.actividad);
+            
+            const [start, end] = editingHorario.resource.horario.split(' - ');
+            setHoraInicio(start || '');
+            setHoraFin(end || '');
+        }
+    }, [editingHorario, deportistasAsignados]);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -34,10 +52,18 @@ const AsignarHorarioForm = ({ deportistasAsignados, entrenadorId, authHeader, on
             horario: `${horaInicio} - ${horaFin}`,
             actividad: actividad
         };
+        
+        // La URL y el método HTTP cambian si estamos editando o creando
+        const isEditing = !!editingHorario;
+        const url = isEditing 
+            ? `http://localhost:8081/api/v1/horarios/${editingHorario.id}`
+            : `http://localhost:8081/api/v1/entrenadores/${entrenadorId}/horarios-asignar`;
+        
+        const method = isEditing ? 'PUT' : 'POST';
 
         try {
-            const response = await fetch(`http://localhost:8081/api/v1/entrenadores/${entrenadorId}/horarios-asignar`, {
-                method: 'POST',
+            const response = await fetch(url, {
+                method: method,
                 headers: { 'Content-Type': 'application/json', 'Authorization': authHeader },
                 body: JSON.stringify(horarioData)
             });
@@ -45,13 +71,11 @@ const AsignarHorarioForm = ({ deportistasAsignados, entrenadorId, authHeader, on
                 const errorText = await response.text();
                 throw new Error(errorText || 'Error del servidor');
             }
-            setFormMessage({ text: 'Horario asignado con éxito.', type: 'success' });
-            // Llama a la función del padre después de un breve momento para que el usuario vea el mensaje
-            setTimeout(() => {
-                onHorarioAsignado();
-            }, 1000);
+            const successMessage = isEditing ? 'Horario actualizado con éxito.' : 'Horario asignado con éxito.';
+            setFormMessage({ text: successMessage, type: 'success' });
+            setTimeout(() => onHorarioGuardado(), 1000);
         } catch (err) {
-            setFormMessage({ text: `Error al asignar horario: ${err.message}`, type: 'error' });
+            setFormMessage({ text: `Error: ${err.message}`, type: 'error' });
         } finally {
             setIsLoading(false);
         }
@@ -62,13 +86,7 @@ const AsignarHorarioForm = ({ deportistasAsignados, entrenadorId, authHeader, on
             <form onSubmit={handleSubmit} className="progreso-form">
                 <div className="form-group">
                     <label>Deportista:</label>
-                    <Select
-                        options={deportistaOptions}
-                        value={selectedDeportista}
-                        onChange={setSelectedDeportista}
-                        placeholder="Selecciona un deportista..."
-                        isClearable
-                    />
+                    <Select options={deportistaOptions} value={selectedDeportista} onChange={setSelectedDeportista} placeholder="Selecciona un deportista..." isClearable />
                 </div>
                 <div className="form-group">
                     <label>Día:</label>
@@ -98,7 +116,7 @@ const AsignarHorarioForm = ({ deportistasAsignados, entrenadorId, authHeader, on
                 <div className="form-buttons">
                     <button type="button" onClick={onCancel} className="cancel-button">Cancelar</button>
                     <button type="submit" className="submit-button" disabled={isLoading}>
-                        {isLoading ? 'Asignando...' : 'Asignar Horario'}
+                        {isLoading ? 'Guardando...' : (editingHorario ? 'Actualizar Horario' : 'Asignar Horario')}
                     </button>
                 </div>
             </form>

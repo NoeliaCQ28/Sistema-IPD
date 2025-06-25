@@ -8,7 +8,6 @@ import lombok.Data;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -39,13 +38,14 @@ public class EntrenadorDetailDTO {
         private String disciplina;
     }
 
+    // --- SUBCLASE CORREGIDA ---
     @Data
     public static class HorarioEntrenamientoInfo {
         private Long id;
         private String dia;
         private String horario;
         private String actividad;
-        private String entrenadorNombre;
+        private String deportistaNombre; // Campo corregido
     }
 
     @Data
@@ -80,9 +80,8 @@ public class EntrenadorDetailDTO {
 
         Set<Deportista> deportistasEntity = entrenador.getDeportistasACargo();
         if (deportistasEntity != null && !deportistasEntity.isEmpty()) {
-            List<Deportista> safeDeportistasList = new ArrayList<>(deportistasEntity);
             dto.setDeportistasACargo(
-                    safeDeportistasList.stream()
+                    deportistasEntity.stream()
                             .map(dep -> {
                                 DeportistaAsignadoInfo depInfo = new DeportistaAsignadoInfo();
                                 depInfo.setId(dep.getId());
@@ -96,19 +95,22 @@ public class EntrenadorDetailDTO {
             dto.setDeportistasACargo(new ArrayList<>());
         }
 
+        // --- LÓGICA DE MAPEO CORREGIDA ---
         Set<HorarioEntrenamiento> horariosEntity = entrenador.getHorariosCreados();
         if (horariosEntity != null && !horariosEntity.isEmpty()) {
-            List<HorarioEntrenamiento> safeHorariosList = new ArrayList<>(horariosEntity);
             dto.setHorariosCreados(
-                    safeHorariosList.stream()
+                    horariosEntity.stream()
                             .map(horario -> {
                                 HorarioEntrenamientoInfo horarioInfo = new HorarioEntrenamientoInfo();
                                 horarioInfo.setId(horario.getId());
                                 horarioInfo.setDia(horario.getDia());
                                 horarioInfo.setHorario(horario.getHorario());
                                 horarioInfo.setActividad(horario.getActividad());
-                                if (horario.getEntrenador() != null) {
-                                    horarioInfo.setEntrenadorNombre(horario.getEntrenador().getNombres() + " " + horario.getEntrenador().getApellidos());
+                                // Ahora obtenemos el nombre del DEPORTISTA, no del entrenador
+                                if (horario.getDeportista() != null) {
+                                    horarioInfo.setDeportistaNombre(horario.getDeportista().getNombres() + " " + horario.getDeportista().getApellidos());
+                                } else {
+                                    horarioInfo.setDeportistaNombre("No asignado");
                                 }
                                 return horarioInfo;
                             })
@@ -117,30 +119,22 @@ public class EntrenadorDetailDTO {
         } else {
             dto.setHorariosCreados(new ArrayList<>());
         }
+        // --- FIN DE LA CORRECCIÓN ---
 
         Set<ProgresoDeportista> progresosRegistradosEntity = entrenador.getProgresosRegistrados();
         if (progresosRegistradosEntity != null && !progresosRegistradosEntity.isEmpty()) {
-            List<ProgresoDeportista> safeProgresosList = new ArrayList<>(progresosRegistradosEntity);
             dto.setProgresosRegistrados(
-                    safeProgresosList.stream()
+                    progresosRegistradosEntity.stream()
                             .map(progreso -> {
                                 ProgresoDeportistaDTO progresoDto = new ProgresoDeportistaDTO();
                                 progresoDto.setId(progreso.getId());
                                 if (progreso.getDeportista() != null) {
-                                    progreso.getDeportista().getNombres();
                                     progresoDto.setDeportistaId(progreso.getDeportista().getId());
                                     progresoDto.setDeportistaNombre(progreso.getDeportista().getNombres() + " " + progreso.getDeportista().getApellidos());
-                                } else {
-                                    progresoDto.setDeportistaNombre("Deportista Desconocido");
-                                    progresoDto.setDeportistaId(null);
                                 }
                                 if (progreso.getEntrenador() != null) {
-                                    progreso.getEntrenador().getNombres();
                                     progresoDto.setEntrenadorId(progreso.getEntrenador().getId());
                                     progresoDto.setEntrenadorNombre(progreso.getEntrenador().getNombres() + " " + progreso.getEntrenador().getApellidos());
-                                } else {
-                                    progresoDto.setEntrenadorNombre("Entrenador Desconocido");
-                                    progresoDto.setEntrenadorId(null);
                                 }
                                 progresoDto.setFechaRegistro(progreso.getFechaRegistro());
                                 progresoDto.setTipoMebrica(progreso.getTipoMebrica());

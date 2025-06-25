@@ -5,14 +5,14 @@ import com.ipdsystem.sistemaipd.Dto.EntrenadorDetailDTO;
 import com.ipdsystem.sistemaipd.Dto.EntrenadorRequestDTO;
 import com.ipdsystem.sistemaipd.Dto.EntrenadorResponseDTO;
 import com.ipdsystem.sistemaipd.Dto.HorarioAsignacionRequestDTO;
-import com.ipdsystem.sistemaipd.Dto.HorarioEntrenamientoDTO;
+import com.ipdsystem.sistemaipd.Dto.HorarioEntrenamientoDTO; // <-- IMPORTACIÓN AÑADIDA
 import com.ipdsystem.sistemaipd.Dto.ProgresoDeportistaRequestDTO;
 import com.ipdsystem.sistemaipd.Dto.ProgresoDeportistaResponseDTO;
-import com.ipdsystem.sistemaipd.Entity.Administrador;
+import com.ipdsystem.sistemaipd.Entity.Administrador; // <-- IMPORTACIÓN AÑADIDA
 import com.ipdsystem.sistemaipd.Entity.Entrenador;
 import com.ipdsystem.sistemaipd.Entity.HorarioEntrenamiento;
 import com.ipdsystem.sistemaipd.Service.EntrenadorService;
-import com.ipdsystem.sistemaipd.Service.HorarioEntrenamientoService;
+import com.ipdsystem.sistemaipd.Service.HorarioEntrenamientoService; // <-- IMPORTACIÓN AÑADIDA
 import com.ipdsystem.sistemaipd.Service.ProgresoDeportistaService;
 import com.ipdsystem.sistemaipd.Exception.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,15 +30,15 @@ public class EntrenadorController {
 
     private final EntrenadorService entrenadorService;
     private final ProgresoDeportistaService progresoDeportistaService;
-    private final HorarioEntrenamientoService horarioEntrenamientoService;
+    private final HorarioEntrenamientoService horarioEntrenamientoService; // <-- CAMPO AÑADIDO
 
     @Autowired
     public EntrenadorController(EntrenadorService entrenadorService,
                                 ProgresoDeportistaService progresoDeportistaService,
-                                HorarioEntrenamientoService horarioEntrenamientoService) {
+                                HorarioEntrenamientoService horarioEntrenamientoService) { // <-- CONSTRUCTOR ACTUALIZADO
         this.entrenadorService = entrenadorService;
         this.progresoDeportistaService = progresoDeportistaService;
-        this.horarioEntrenamientoService = horarioEntrenamientoService;
+        this.horarioEntrenamientoService = horarioEntrenamientoService; // <-- ASIGNACIÓN AÑADIDA
     }
 
     @GetMapping("/{id}/deportistas")
@@ -150,6 +150,7 @@ public class EntrenadorController {
     public ResponseEntity<List<HorarioEntrenamientoDTO>> getAllHorariosByEntrenador(
             @PathVariable Long entrenadorId,
             @AuthenticationPrincipal UserDetails currentUser) {
+
         if (currentUser instanceof Entrenador) {
             if (!((Entrenador) currentUser).getId().equals(entrenadorId)) {
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
@@ -157,6 +158,7 @@ public class EntrenadorController {
         } else if (!(currentUser instanceof Administrador)) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
+
         List<HorarioEntrenamientoDTO> horarios = horarioEntrenamientoService.getHorariosByEntrenadorId(entrenadorId);
         return ResponseEntity.ok(horarios);
     }

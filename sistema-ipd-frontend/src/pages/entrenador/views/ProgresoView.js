@@ -14,29 +14,28 @@ const ProgresoView = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingProgreso, setEditingProgreso] = useState(null);
 
-    // Fetch para los deportistas (necesario para el modal)
-    const fetchDeportistas = useCallback(async () => {
-        if (!user?.id || !authHeader) return;
-        try {
-            const deportistasRes = await fetch(`http://localhost:8081/api/v1/entrenadores/${user.id}/deportistas`, { headers: { 'Authorization': authHeader } });
-            if (!deportistasRes.ok) throw new Error('No se pudieron cargar los deportistas para el formulario.');
-            const deportistasData = await deportistasRes.json();
-            setDeportistas(deportistasData);
-        } catch (err) {
-            console.error(err); // Lo registramos en consola pero no bloqueamos la UI
+    const fetchData = useCallback(async () => {
+        if (!user?.id || !authHeader) {
+            return;
         }
-    }, [user?.id, authHeader]);
-
-    // Fetch para el historial de progreso
-    const fetchProgresos = useCallback(async () => {
-        if (!user?.id || !authHeader) return;
+        
         setLoading(true);
         setError(null);
         try {
-            const progresosRes = await fetch(`http://localhost:8081/api/v1/entrenadores/${user.id}/progresos/todos`, { headers: { 'Authorization': authHeader } });
+            const [progresosRes, deportistasRes] = await Promise.all([
+                fetch(`http://localhost:8081/api/v1/entrenadores/${user.id}/progresos/todos`, { headers: { 'Authorization': authHeader } }),
+                fetch(`http://localhost:8081/api/v1/entrenadores/${user.id}/deportistas`, { headers: { 'Authorization': authHeader } })
+            ]);
+
             if (!progresosRes.ok) throw new Error('No se pudo cargar el historial de progreso. Verifique sus permisos.');
+            if (!deportistasRes.ok) throw new Error('No se pudieron cargar los deportistas para el formulario.');
+
             const progresosData = await progresosRes.json();
+            const deportistasData = await deportistasRes.json();
+
             setProgresos(progresosData);
+            setDeportistas(deportistasData);
+
         } catch (err) {
             setError(err.message);
         } finally {
@@ -45,10 +44,8 @@ const ProgresoView = () => {
     }, [user?.id, authHeader]);
 
     useEffect(() => {
-        // Llamamos a ambas funciones de carga. Ahora son independientes.
-        fetchDeportistas();
-        fetchProgresos();
-    }, [fetchDeportistas, fetchProgresos]);
+        fetchData();
+    }, [fetchData]);
 
     const handleOpenModal = (progreso = null) => {
         setEditingProgreso(progreso);
@@ -58,9 +55,41 @@ const ProgresoView = () => {
     const handleProgresoSaved = () => {
         setIsModalOpen(false);
         setEditingProgreso(null);
-        fetchProgresos(); // Solo recargamos el historial
+        fetchData();
     };
 
+    // --- NUEVA FUNCIÓN PARA ELIMINAR ---
+    const handleDelete = async (progresoId) => {
+        // Usamos una confirmación simple para evitar borrados accidentales
+        if (!window.confirm('¿Estás seguro de que quieres eliminar este registro de progreso?')) {
+            return;
+        }
+
+        try {
+            const response = await fetch(`http://localhost:8081/api/v1/entrenadores/${user.id}/progresos/${progresoId}`, {
+                method: 'DELETE',
+                headers: { 'Authorization': authHeader }
+            });
+
+            if (!response.ok) {
+                throw new Error('No se pudo eliminar el registro.');
+            }
+
+            // Si se elimina correctamente, recargamos la lista
+            fetchData();
+
+        } catch (err) {
+            // Mostramos el error al usuario
+            alert(`Error al eliminar: ${err.message}`);
+            console.error("Error al eliminar progreso:", err);
+        }
+    };
+
+
+    if (loading && !error) {
+        return <p>Cargando historial de progreso...</p>;
+    }
+    
     return (
         <div className="view-container">
             <header className="view-header">
@@ -72,13 +101,11 @@ const ProgresoView = () => {
                 </div>
             </header>
 
-            {loading && <p>Cargando historial...</p>}
             {error && <p className="error-message">{error}</p>}
-            
+
             {!loading && !error && (
-                <div className="table-container">
+                 <div className="table-container">
                     <table className="data-table">
-                        {/* ... (contenido de la tabla sin cambios) ... */}
                         <thead>
                             <tr>
                                 <th>Fecha</th>
@@ -101,6 +128,8 @@ const ProgresoView = () => {
                                         <td>
                                             <div className="table-actions">
                                                 <button className="action-button edit" onClick={() => handleOpenModal(p)}>Editar</button>
+                                                {/* --- BOTÓN DE ELIMINAR AÑADIDO --- */}
+                                                <button className="action-button delete" onClick={() => handleDelete(p.id)}>Eliminar</button>
                                             </div>
                                         </td>
                                     </tr>

@@ -8,7 +8,7 @@ const Sidebar = () => {
     const navigate = useNavigate();
 
     if (!user) {
-        return null;
+        return null; // Evita errores si el componente se renderiza antes de tener el usuario
     }
 
     const handleLogout = () => {
@@ -32,6 +32,10 @@ const Sidebar = () => {
                 </NavLink>
                 <NavLink to="/portal/entrenador/progreso">
                     Historial de Progreso
+                </NavLink>
+                {/* --- ENLACE AÑADIDO --- */}
+                <NavLink to="/portal/entrenador/horarios">
+                    Horarios
                 </NavLink>
             </nav>
             <div className="sidebar-footer">

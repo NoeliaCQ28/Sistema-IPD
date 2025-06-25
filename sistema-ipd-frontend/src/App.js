@@ -29,6 +29,7 @@ import EntrenadorLayout from './pages/entrenador/EntrenadorLayout';
 import DashboardView from './pages/entrenador/views/DashboardView';
 import DeportistasView from './pages/entrenador/views/DeportistasView';
 import ProgresoView from './pages/entrenador/views/ProgresoView';
+import HorariosView from './pages/entrenador/views/HorariosView'; // <-- NUEVA IMPORTACIÓN
 
 
 function App() {
@@ -36,27 +37,26 @@ function App() {
     <AuthProvider>
       <BrowserRouter>
         <Routes>
-          {/* RUTA DE LOGIN */}
           <Route path="/login" element={<LoginPage />} />
 
           {/* RUTAS DE ADMINISTRADOR */}
           <Route element={<ProtectedRoute role="ADMINISTRADOR" />}>
             <Route path="/dashboard" element={<AdminLayout />}>
-              <Route index element={<DashboardPage />} />
-              <Route path="perfil" element={<ProfilePage />} />
-              <Route path="deportistas" element={<DeportistaPortal />} />
-              <Route path="deportistas/nuevo" element={<DeportistaForm />} />
-              <Route path="deportistas/editar/:id" element={<DeportistaForm />} />
-              <Route path="deportistas/ver/:id" element={<DeportistaDetalle />} />
-              <Route path="deportistas/ver/:deportistaId/progresos" element={<ProgresoHistorial />} /> 
-              <Route path="entrenadores" element={<EntrenadorPortal />} />
-              <Route path="entrenadores/nuevo" element={<EntrenadorForm />} />
-              <Route path="entrenadores/editar/:id" element={<EntrenadorForm />} />
-              <Route path="entrenadores/ver/:id" element={<EntrenadorDetalle />} />
-              <Route path="torneos" element={<TorneoPortal />} />
-              <Route path="torneos/nuevo" element={<TorneoForm />} />
-              <Route path="torneos/editar/:id" element={<TorneoForm />} />
-              <Route path="torneos/ver/:id" element={<TorneoDetalle />} />
+                <Route index element={<DashboardPage />} />
+                <Route path="perfil" element={<ProfilePage />} />
+                <Route path="deportistas" element={<DeportistaPortal />} />
+                <Route path="deportistas/nuevo" element={<DeportistaForm />} />
+                <Route path="deportistas/editar/:id" element={<DeportistaForm />} />
+                <Route path="deportistas/ver/:id" element={<DeportistaDetalle />} />
+                <Route path="deportistas/ver/:deportistaId/progresos" element={<ProgresoHistorial />} /> 
+                <Route path="entrenadores" element={<EntrenadorPortal />} />
+                <Route path="entrenadores/nuevo" element={<EntrenadorForm />} />
+                <Route path="entrenadores/editar/:id" element={<EntrenadorForm />} />
+                <Route path="entrenadores/ver/:id" element={<EntrenadorDetalle />} />
+                <Route path="torneos" element={<TorneoPortal />} />
+                <Route path="torneos/nuevo" element={<TorneoForm />} />
+                <Route path="torneos/editar/:id" element={<TorneoForm />} />
+                <Route path="torneos/ver/:id" element={<TorneoDetalle />} />
             </Route>
           </Route>
 
@@ -72,6 +72,8 @@ function App() {
               <Route path="dashboard" element={<DashboardView />} />
               <Route path="mis-deportistas" element={<DeportistasView />} />
               <Route path="progreso" element={<ProgresoView />} />
+              <Route path="horarios" element={<HorariosView />} /> {/* <-- NUEVA RUTA AÑADIDA */}
+              
               <Route path="deportistas/ver/:id" element={<DeportistaDetalle />} /> 
               <Route path="deportistas/ver/:deportistaId/progresos" element={<ProgresoHistorial />} /> 
             </Route>

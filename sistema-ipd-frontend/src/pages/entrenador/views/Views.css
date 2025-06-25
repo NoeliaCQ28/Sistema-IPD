@@ -2,6 +2,7 @@
  * Styles for the main content views within a layout
  */
 
+/* --- Contenedor General de la Vista --- */
 .view-container {
     padding: 1rem;
     animation: fadeIn 0.5s ease-in-out;
@@ -51,6 +52,7 @@
 .action-button-view.secondary { background-color: #6c757d; color: white; }
 .action-button-view.secondary:hover { background-color: #5a6268; transform: translateY(-2px); box-shadow: 0 4px 10px rgba(108, 117, 125, 0.3); }
 
+/* --- Tarjetas de Deportistas (Vista 'Mis Deportistas') --- */
 .athlete-cards-container-view {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
@@ -74,6 +76,10 @@
 .athlete-card-actions { background-color: #f8f9fa; padding: 0.75rem 1rem; display: flex; justify-content: flex-end; gap: 0.5rem; border-top: 1px solid #e9ecef; }
 .athlete-card-actions button { background: transparent; border: 1px solid #ced4da; color: #495057; padding: 0.4rem 0.8rem; border-radius: 6px; font-size: 0.85rem; font-weight: 600; cursor: pointer; transition: background-color 0.2s, color 0.2s; }
 .athlete-card-actions button:hover { background-color: #e9ecef; color: #000; }
+
+/* ======================================================= */
+/* ---             ESTILOS PARA EL DASHBOARD             --- */
+/* ======================================================= */
 
 .dashboard-view .welcome-message {
     color: #6c757d;
@@ -151,15 +157,19 @@
     border-bottom: none;
 }
 
-.widget-list-item span {
+.widget-item-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.widget-item-info span {
     color: #495057;
 }
 
-.widget-list-item .item-date {
+.item-date, .item-deportista {
     color: #adb5bd;
     font-size: 0.85rem;
-    flex-shrink: 0;
-    margin-left: 1rem;
+    margin-top: 4px;
 }
 
 .widget-link {
@@ -175,66 +185,131 @@
     text-decoration: underline;
 }
 
-.table-container {
+/* --- Tablas de Datos (Historial de Progreso) --- */
+.table-container { background-color: #fff; border-radius: 12px; padding: 1.5rem; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08); overflow-x: auto; }
+.data-table { width: 100%; border-collapse: collapse; }
+.data-table thead th { background-color: #f8f9fa; color: #495057; font-weight: 600; text-align: left; padding: 0.75rem 1rem; border-bottom: 2px solid #dee2e6; }
+.data-table tbody td { padding: 0.75rem 1rem; border-bottom: 1px solid #e9ecef; color: #6c757d; vertical-align: middle; }
+.data-table tbody tr:last-child td { border-bottom: none; }
+.data-table tbody tr:hover { background-color: #f8f9fa; }
+.table-actions { display: flex; gap: 0.5rem; }
+.table-actions .action-button { padding: 0.3rem 0.6rem; border-radius: 6px; font-size: 0.8rem; border: 1px solid transparent; cursor: pointer; }
+.table-actions .action-button.edit { background-color: #e0f2fe; color: #0c5460; }
+.table-actions .action-button.edit:hover { background-color: #b3e5fc; }
+.table-actions .action-button.delete { background-color: #fde8e8; color: #c0392b; }
+.table-actions .action-button.delete:hover { background-color: #e74c3c; color: white; }
+
+/* ======================================================= */
+/* ---             NUEVOS ESTILOS PARA CALENDARIO        --- */
+/* ======================================================= */
+
+.calendar-container {
     background-color: #fff;
     border-radius: 12px;
     padding: 1.5rem;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
-    overflow-x: auto;
 }
 
-.data-table {
-    width: 100%;
-    border-collapse: collapse;
+.rbc-toolbar button {
+    background-color: #f0f2f5 !important;
+    color: #333 !important;
+    border: 1px solid #ddd !important;
+    box-shadow: none !important;
+    padding: 8px 12px !important;
+    transition: background-color 0.2s ease;
+    border-radius: 6px !important;
 }
 
-.data-table thead th {
-    background-color: #f8f9fa;
-    color: #495057;
-    font-weight: 600;
-    text-align: left;
-    padding: 0.75rem 1rem;
-    border-bottom: 2px solid #dee2e6;
+.rbc-toolbar button:hover, .rbc-toolbar button:focus {
+    background-color: #e2e6ea !important;
+    border-color: #ccc !important;
 }
 
-.data-table tbody td {
-    padding: 0.75rem 1rem;
-    border-bottom: 1px solid #e9ecef;
-    color: #6c757d;
-    vertical-align: middle;
+.rbc-toolbar button.rbc-active {
+    background-color: #c52127 !important; /* Usamos el color principal de la app */
+    color: white !important;
+    border-color: #c52127 !important;
 }
 
-.data-table tbody tr:last-child td {
-    border-bottom: none;
+.rbc-event {
+    background-color: #2c3e50 !important; /* Usamos el color de la sidebar */
+    border-color: #212f3d !important;
+    border-radius: 4px !important;
 }
 
-.data-table tbody tr:hover {
-    background-color: #f8f9fa;
+.rbc-event-label {
+    font-size: 0.8em;
 }
 
-.table-actions {
-    display: flex;
-    gap: 0.5rem;
+.rbc-event-content {
+    font-size: 0.9em;
 }
 
-.table-actions .action-button {
-    padding: 0.3rem 0.6rem;
-    border-radius: 6px;
-    font-size: 0.8rem;
-    border: 1px solid transparent;
-    cursor: pointer;
-}
-
-.table-actions .action-button.edit {
-    background-color: #e0f2fe;
-    color: #0c5460;
-}
-.table-actions .action-button.edit:hover {
-    background-color: #b3e5fc;
-}
-
+/* --- Responsive --- */
 @media (max-width: 992px) {
     .dashboard-widgets {
         grid-template-columns: 1fr;
     }
+}
+/* ... (estilos existentes) ... */
+
+/* --- NUEVOS ESTILOS PARA EL MODAL DE DETALLES DEL EVENTO --- */
+
+.event-detail-modal {
+    padding: 1rem;
+}
+
+.event-detail-modal h3 {
+    margin-top: 0;
+    color: #2c3e50;
+    font-size: 1.5rem;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.event-detail-modal p {
+    font-size: 1rem;
+    color: #34495e;
+    margin: 0.5rem 0;
+}
+
+.modal-actions {
+    margin-top: 2rem;
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.75rem;
+}
+
+.modal-actions .action-button {
+    padding: 0.6rem 1.2rem;
+    border: none;
+    border-radius: 8px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.modal-actions .action-button.primary {
+    background-color: #007bff;
+    color: white;
+}
+.modal-actions .action-button.primary:hover {
+    background-color: #0056b3;
+}
+
+.modal-actions .action-button.secondary {
+    background-color: #6c757d;
+    color: white;
+}
+.modal-actions .action-button.secondary:hover {
+    background-color: #5a6268;
+}
+
+.modal-actions .action-button.delete {
+    background-color: #dc3545;
+    color: white;
+}
+.modal-actions .action-button.delete:hover {
+    background-color: #c82333;
 }
