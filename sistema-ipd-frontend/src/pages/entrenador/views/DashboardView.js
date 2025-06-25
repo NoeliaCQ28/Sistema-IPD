@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../../context/AuthContext';
-import { Link } from 'react-router-dom'; // Para hacer los widgets interactivos
-import './Views.css'; // Usaremos el mismo archivo de estilos
+import { Link } from 'react-router-dom';
+import './Views.css';
 
 const DashboardView = () => {
     const { user, authHeader } = useAuth();
@@ -33,18 +33,14 @@ const DashboardView = () => {
     if (error) return <p className="error-message">{error}</p>;
     if (!entrenadorData) return <p>No hay datos disponibles para mostrar.</p>
 
-    // --- Procesamiento de datos para los widgets ---
     const deportistasCount = entrenadorData.deportistasACargo?.length || 0;
     const horariosCount = entrenadorData.horariosCreados?.length || 0;
     const progresosCount = entrenadorData.progresosRegistrados?.length || 0;
 
-    // Obtener los últimos 3 progresos registrados
     const progresosRecientes = [...(entrenadorData.progresosRegistrados || [])]
         .sort((a, b) => new Date(b.fechaCreacion) - new Date(a.fechaCreacion))
         .slice(0, 3);
         
-    // Obtener los últimos 3 horarios creados
-    // Nota: Como no tenemos fecha en los horarios, simplemente mostramos los últimos de la lista.
     const horariosRecientes = [...(entrenadorData.horariosCreados || [])].slice(-3).reverse();
 
 
@@ -55,24 +51,20 @@ const DashboardView = () => {
                 <p className="welcome-message">¡Bienvenido de nuevo, {user.nombres}!</p>
             </header>
 
-            {/* --- Widgets de Estadísticas (KPIs) --- */}
             <div className="stats-grid">
                 <div className="stat-card">
-                    <div className="stat-icon deportistas"></div>
                     <div className="stat-info">
                         <h2>{deportistasCount}</h2>
                         <p>Deportistas Asignados</p>
                     </div>
                 </div>
                 <div className="stat-card">
-                    <div className="stat-icon horarios"></div>
                     <div className="stat-info">
                         <h2>{horariosCount}</h2>
                         <p>Horarios Creados</p>
                     </div>
                 </div>
                 <div className="stat-card">
-                    <div className="stat-icon progresos"></div>
                     <div className="stat-info">
                         <h2>{progresosCount}</h2>
                         <p>Progresos Registrados</p>
@@ -80,7 +72,6 @@ const DashboardView = () => {
                 </div>
             </div>
 
-            {/* --- Widgets de Actividad Reciente --- */}
             <div className="dashboard-widgets">
                 <div className="widget">
                     <h3>Progreso Reciente</h3>
@@ -109,7 +100,7 @@ const DashboardView = () => {
                             <p>No has creado horarios recientemente.</p>
                         )}
                     </ul>
-                    <Link to="/portal/entrenador/horarios" className="widget-link">Ver todos los horarios &rarr;</Link>
+                    {/* <Link to="/portal/entrenador/horarios" className="widget-link">Ver todos los horarios &rarr;</Link> */}
                 </div>
             </div>
         </div>

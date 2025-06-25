@@ -30,27 +30,42 @@ public class ProgresoDeportistaService {
     @Autowired
     private EntrenadorRepository entrenadorRepository;
 
+    // --- MÉTODO CORREGIDO Y ROBUSTO ---
+    @Transactional(readOnly = true)
+    public List<ProgresoDeportistaResponseDTO> getProgresosByEntrenadorId(Long entrenadorId) {
+        // 1. Obtenemos la lista de la base de datos.
+        List<ProgresoDeportista> progresos = progresoDeportistaRepository.findByEntrenadorIdOrderByFechaRegistroDesc(entrenadorId);
+
+        // 2. Creamos una nueva lista para los DTOs.
+        List<ProgresoDeportistaResponseDTO> dtos = new ArrayList<>();
+
+        // 3. Iteramos explícitamente sobre los resultados DENTRO de la transacción.
+        for (ProgresoDeportista progreso : progresos) {
+            // Este proceso fuerza la carga de los datos relacionados de forma segura.
+            dtos.add(ProgresoDeportistaResponseDTO.fromEntity(progreso));
+        }
+
+        // 4. Devolvemos la lista de DTOs ya construida.
+        return dtos;
+    }
+
     @Transactional(readOnly = true)
     public List<ProgresoDeportistaResponseDTO> getProgresosByDeportistaId(Long deportistaId) {
         Deportista deportista = deportistaRepository.findById(deportistaId)
                 .orElseThrow(() -> new EntityNotFoundException("Deportista no encontrado con ID: " + deportistaId));
 
-        if (deportista.getProgresos() != null) {
-            deportista.getProgresos().size();
+        List<ProgresoDeportista> progresos = deportista.getProgresos().stream().toList();
+
+        // Aplicamos la misma técnica para consistencia
+        for (ProgresoDeportista progreso : progresos) {
+            if (progreso.getEntrenador() != null) {
+                progreso.getEntrenador().getNombres();
+            }
         }
 
-        return deportista.getProgresos().stream()
-                .map(progreso -> {
-                    if (progreso.getDeportista() != null) progreso.getDeportista().getNombres();
-                    if (progreso.getEntrenador() != null) progreso.getEntrenador().getNombres();
-                    return ProgresoDeportistaResponseDTO.fromEntity(progreso);
-                })
-                .collect(Collectors.toCollection(ArrayList::new));
-    }
-
-    @Transactional
-    public ProgresoDeportista saveProgreso(ProgresoDeportista progreso) {
-        return progresoDeportistaRepository.save(progreso);
+        return progresos.stream()
+                .map(ProgresoDeportistaResponseDTO::fromEntity)
+                .collect(Collectors.toList());
     }
 
     @Transactional
@@ -58,12 +73,12 @@ public class ProgresoDeportistaService {
         ProgresoDeportista progresoExistente = progresoDeportistaRepository.findById(progresoId)
                 .orElseThrow(() -> new EntityNotFoundException("Registro de progreso no encontrado con ID: " + progresoId));
 
-        if (requestDTO.getDeportistaId() != null && !progresoExistente.getDeportista().getId().equals(requestDTO.getDeportistaId())) {
+        if (requestDTO.getDeportistaId() != null) {
             Deportista newDeportista = deportistaRepository.findById(requestDTO.getDeportistaId())
                     .orElseThrow(() -> new EntityNotFoundException("Deportista no encontrado con ID: " + requestDTO.getDeportistaId()));
             progresoExistente.setDeportista(newDeportista);
         }
-        if (requestDTO.getEntrenadorId() != null && !progresoExistente.getEntrenador().getId().equals(requestDTO.getEntrenadorId())) {
+        if (requestDTO.getEntrenadorId() != null) {
             Entrenador newEntrenador = entrenadorRepository.findById(requestDTO.getEntrenadorId())
                     .orElseThrow(() -> new EntityNotFoundException("Entrenador no encontrado con ID: " + requestDTO.getEntrenadorId()));
             progresoExistente.setEntrenador(newEntrenador);
@@ -89,11 +104,6 @@ public class ProgresoDeportistaService {
     @Transactional(readOnly = true)
     public Optional<ProgresoDeportistaResponseDTO> obtenerProgresoPorId(Long progresoId) {
         return progresoDeportistaRepository.findById(progresoId)
-                .map(progreso -> {
-                    if (progreso.getDeportista() != null) progreso.getDeportista().getNombres();
-                    if (progreso.getEntrenador() != null) progreso.getEntrenador().getNombres();
-                    return ProgresoDeportistaResponseDTO.fromEntity(progreso);
-                });
+                .map(ProgresoDeportistaResponseDTO::fromEntity);
     }
-
 }

@@ -5,19 +5,22 @@ import com.ipdsystem.sistemaipd.Dto.EntrenadorDetailDTO;
 import com.ipdsystem.sistemaipd.Dto.EntrenadorRequestDTO;
 import com.ipdsystem.sistemaipd.Dto.EntrenadorResponseDTO;
 import com.ipdsystem.sistemaipd.Dto.HorarioAsignacionRequestDTO;
-import com.ipdsystem.sistemaipd.Dto.ProgresoDeportistaRequestDTO; // <<<--- ¡AÑADIR ESTA IMPORTACIÓN!
-import com.ipdsystem.sistemaipd.Dto.ProgresoDeportistaResponseDTO; // <<<--- ¡AÑADIR ESTA IMPORTACIÓN!
+import com.ipdsystem.sistemaipd.Dto.HorarioEntrenamientoDTO;
+import com.ipdsystem.sistemaipd.Dto.ProgresoDeportistaRequestDTO;
+import com.ipdsystem.sistemaipd.Dto.ProgresoDeportistaResponseDTO;
+import com.ipdsystem.sistemaipd.Entity.Administrador;
 import com.ipdsystem.sistemaipd.Entity.Entrenador;
 import com.ipdsystem.sistemaipd.Entity.HorarioEntrenamiento;
 import com.ipdsystem.sistemaipd.Service.EntrenadorService;
-import com.ipdsystem.sistemaipd.Service.ProgresoDeportistaService; // <<<--- ¡AÑADIR ESTA IMPORTACIÓN!
+import com.ipdsystem.sistemaipd.Service.HorarioEntrenamientoService;
+import com.ipdsystem.sistemaipd.Service.ProgresoDeportistaService;
+import com.ipdsystem.sistemaipd.Exception.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal; // <<<--- ¡AÑADIR ESTA IMPORTACIÓN!
-import org.springframework.security.core.userdetails.UserDetails; // <<<--- ¡AÑADIR ESTA IMPORTACIÓN!
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
-import com.ipdsystem.sistemaipd.Exception.EntityNotFoundException; // <<<--- ¡AÑADIR ESTA IMPORTACIÓN!
 
 import java.util.List;
 
@@ -26,12 +29,16 @@ import java.util.List;
 public class EntrenadorController {
 
     private final EntrenadorService entrenadorService;
-    private final ProgresoDeportistaService progresoDeportistaService; // <<<--- ¡AÑADIR ESTA INYECCIÓN!
+    private final ProgresoDeportistaService progresoDeportistaService;
+    private final HorarioEntrenamientoService horarioEntrenamientoService;
 
     @Autowired
-    public EntrenadorController(EntrenadorService entrenadorService, ProgresoDeportistaService progresoDeportistaService) { // <<<--- ¡ACTUALIZAR CONSTRUCTOR!
+    public EntrenadorController(EntrenadorService entrenadorService,
+                                ProgresoDeportistaService progresoDeportistaService,
+                                HorarioEntrenamientoService horarioEntrenamientoService) {
         this.entrenadorService = entrenadorService;
-        this.progresoDeportistaService = progresoDeportistaService; // <<<--- ¡ASIGNAR!
+        this.progresoDeportistaService = progresoDeportistaService;
+        this.horarioEntrenamientoService = horarioEntrenamientoService;
     }
 
     @GetMapping("/{id}/deportistas")
@@ -72,18 +79,11 @@ public class EntrenadorController {
     public ResponseEntity<HorarioEntrenamiento> asignarHorarioADeportista(
             @PathVariable Long entrenadorId,
             @RequestBody HorarioAsignacionRequestDTO requestDTO,
-            @AuthenticationPrincipal UserDetails currentUser) { // <<<--- ¡AÑADIR UserDetails!
+            @AuthenticationPrincipal UserDetails currentUser) {
+        if (!(currentUser instanceof Entrenador) || !((Entrenador) currentUser).getId().equals(entrenadorId)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
         try {
-            // Validar que el entrenadorId del PathVariable coincida con el ID del entrenador autenticado
-            if (currentUser instanceof Entrenador) {
-                Entrenador authEntrenador = (Entrenador) currentUser;
-                if (!authEntrenador.getId().equals(entrenadorId)) {
-                    return ResponseEntity.status(HttpStatus.FORBIDDEN).build(); // 403 Forbidden
-                }
-            } else {
-                return ResponseEntity.status(HttpStatus.FORBIDDEN).build(); // Solo entrenadores pueden usar esto
-            }
-
             HorarioEntrenamiento nuevoHorario = entrenadorService.asignarHorarioADeportista(entrenadorId, requestDTO);
             return new ResponseEntity<>(nuevoHorario, HttpStatus.CREATED);
         } catch (EntityNotFoundException e) {
@@ -93,23 +93,14 @@ public class EntrenadorController {
         }
     }
 
-    // --- NUEVOS ENDPOINTS PARA GESTIÓN DE PROGRESO ---
     @PostMapping("/{entrenadorId}/progresos")
     public ResponseEntity<ProgresoDeportistaResponseDTO> registrarProgreso(
             @PathVariable Long entrenadorId,
             @RequestBody ProgresoDeportistaRequestDTO requestDTO,
             @AuthenticationPrincipal UserDetails currentUser) {
-
-        // Validar que el entrenadorId del PathVariable coincida con el ID del entrenador autenticado
-        if (currentUser instanceof Entrenador) {
-            Entrenador authEntrenador = (Entrenador) currentUser;
-            if (!authEntrenador.getId().equals(entrenadorId)) {
-                return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
-            }
-        } else {
+        if (!(currentUser instanceof Entrenador) || !((Entrenador) currentUser).getId().equals(entrenadorId)) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
-
         try {
             ProgresoDeportistaResponseDTO progreso = entrenadorService.registrarProgresoDeportista(entrenadorId, requestDTO);
             return new ResponseEntity<>(progreso, HttpStatus.CREATED);
@@ -126,16 +117,9 @@ public class EntrenadorController {
             @PathVariable Long progresoId,
             @RequestBody ProgresoDeportistaRequestDTO requestDTO,
             @AuthenticationPrincipal UserDetails currentUser) {
-
-        if (currentUser instanceof Entrenador) {
-            Entrenador authEntrenador = (Entrenador) currentUser;
-            if (!authEntrenador.getId().equals(entrenadorId)) {
-                return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
-            }
-        } else {
+        if (!(currentUser instanceof Entrenador) || !((Entrenador) currentUser).getId().equals(entrenadorId)) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
-
         try {
             ProgresoDeportistaResponseDTO updatedProgreso = progresoDeportistaService.actualizarProgreso(progresoId, requestDTO);
             return ResponseEntity.ok(updatedProgreso);
@@ -151,21 +135,44 @@ public class EntrenadorController {
             @PathVariable Long entrenadorId,
             @PathVariable Long progresoId,
             @AuthenticationPrincipal UserDetails currentUser) {
-
-        if (currentUser instanceof Entrenador) {
-            Entrenador authEntrenador = (Entrenador) currentUser;
-            if (!authEntrenador.getId().equals(entrenadorId)) {
-                return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
-            }
-        } else {
+        if (!(currentUser instanceof Entrenador) || !((Entrenador) currentUser).getId().equals(entrenadorId)) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
-
         try {
             progresoDeportistaService.eliminarProgreso(progresoId);
             return ResponseEntity.noContent().build();
         } catch (EntityNotFoundException e) {
             return ResponseEntity.notFound().build();
         }
+    }
+
+    @GetMapping("/{entrenadorId}/horarios/todos")
+    public ResponseEntity<List<HorarioEntrenamientoDTO>> getAllHorariosByEntrenador(
+            @PathVariable Long entrenadorId,
+            @AuthenticationPrincipal UserDetails currentUser) {
+        if (currentUser instanceof Entrenador) {
+            if (!((Entrenador) currentUser).getId().equals(entrenadorId)) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+            }
+        } else if (!(currentUser instanceof Administrador)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+        List<HorarioEntrenamientoDTO> horarios = horarioEntrenamientoService.getHorariosByEntrenadorId(entrenadorId);
+        return ResponseEntity.ok(horarios);
+    }
+
+    @GetMapping("/{entrenadorId}/progresos/todos")
+    public ResponseEntity<List<ProgresoDeportistaResponseDTO>> getAllProgresosByEntrenador(
+            @PathVariable Long entrenadorId,
+            @AuthenticationPrincipal UserDetails currentUser) {
+        if (currentUser instanceof Entrenador) {
+            if (!((Entrenador) currentUser).getId().equals(entrenadorId)) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+            }
+        } else if (!(currentUser instanceof Administrador)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+        List<ProgresoDeportistaResponseDTO> progresos = progresoDeportistaService.getProgresosByEntrenadorId(entrenadorId);
+        return ResponseEntity.ok(progresos);
     }
 }

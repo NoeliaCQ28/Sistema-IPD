@@ -8,7 +8,6 @@ const EntrenadorLayout = () => {
         <div className="entrenador-layout">
             <Sidebar />
             <main className="main-content-area">
-                {/* Aquí es donde React Router renderizará las vistas anidadas */}
                 <Outlet />
             </main>
         </div>

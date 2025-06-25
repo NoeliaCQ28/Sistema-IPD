@@ -2,16 +2,13 @@ import React from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import './Sidebar.css';
-// Si quieres usar iconos, descomenta la siguiente línea e instala la librería:
-// npm install react-icons
-// import { FiGrid, FiUsers, FiLogOut } from 'react-icons/fi';
 
 const Sidebar = () => {
     const { user, logout } = useAuth();
     const navigate = useNavigate();
 
     if (!user) {
-        return null; // No renderizar nada si el usuario no está cargado
+        return null;
     }
 
     const handleLogout = () => {
@@ -28,16 +25,18 @@ const Sidebar = () => {
             </div>
             <nav className="sidebar-nav">
                 <NavLink to="/portal/entrenador/dashboard">
-                    {/* <FiGrid /> */} Dashboard
+                    Dashboard
                 </NavLink>
                 <NavLink to="/portal/entrenador/mis-deportistas">
-                    {/* <FiUsers /> */} Mis Deportistas
+                    Mis Deportistas
                 </NavLink>
-                {/* Puedes añadir más enlaces aquí en el futuro */}
+                <NavLink to="/portal/entrenador/progreso">
+                    Historial de Progreso
+                </NavLink>
             </nav>
             <div className="sidebar-footer">
                 <button onClick={handleLogout} className="logout-button-sidebar">
-                    {/* <FiLogOut /> */} Cerrar Sesión
+                    Cerrar Sesión
                 </button>
             </div>
         </aside>

@@ -5,7 +5,7 @@ import LoginPage from './pages/LoginPage';
 import AdminLayout from './layouts/AdminLayout';
 import ProtectedRoute from './components/auth/ProtectedRoute';
 
-// --- Páginas de Admin (Sin cambios) ---
+// Páginas de Admin
 import DashboardPage from './pages/Dashboard';
 import ProfilePage from './pages/ProfilePage';
 import DeportistaPortal from './pages/deportistas/DeportistaPortal';
@@ -18,21 +18,17 @@ import TorneoPortal from './pages/torneos/TorneoPortal';
 import TorneoForm from './pages/torneos/TorneoForm';
 import TorneoDetalle from './pages/torneos/TorneoDetalle';
 
-// --- Páginas de Roles (Sin cambios para Deportista) ---
+// Páginas de Roles
 import DeportistaHomePage from './pages/deportista/DeportistaHomePage';
-// Se elimina la importación de la página antigua del entrenador
-// import EntrenadorHomePage from './pages/entrenador/EntrenadorHomePage'; 
 
-// --- Componentes Adicionales ---
+// Componentes adicionales
 import ProgresoHistorial from './components/progreso/ProgresoHistorial';
 
 // --- NUEVAS IMPORTACIONES PARA EL PANEL DE ENTRENADOR ---
 import EntrenadorLayout from './pages/entrenador/EntrenadorLayout';
 import DashboardView from './pages/entrenador/views/DashboardView';
 import DeportistasView from './pages/entrenador/views/DeportistasView';
-// Importa aquí las futuras vistas cuando las crees:
-// import HorariosView from './pages/entrenador/views/HorariosView';
-// import ProgresoView from './pages/entrenador/views/ProgresoView';
+import ProgresoView from './pages/entrenador/views/ProgresoView';
 
 
 function App() {
@@ -69,27 +65,18 @@ function App() {
             <Route path="/portal/deportista" element={<DeportistaHomePage />} />
           </Route>
 
-          {/* === SECCIÓN MODIFICADA: RUTAS DE ENTRENADOR === */}
+          {/* RUTAS DE ENTRENADOR CON EL NUEVO LAYOUT */}
           <Route element={<ProtectedRoute role="ENTRENADOR" />}>
-            {/* Todas las rutas de entrenador ahora pasan por EntrenadorLayout */}
             <Route path="/portal/entrenador" element={<EntrenadorLayout />}>
-              
-              {/* Redirección: si un entrenador va a /portal/entrenador, lo mandamos a 'mis-deportistas' por defecto */}
               <Route index element={<Navigate to="dashboard" replace />} />
-              
-              {/* Vistas específicas que se renderizarán dentro del Layout */}
               <Route path="dashboard" element={<DashboardView />} />
               <Route path="mis-deportistas" element={<DeportistasView />} />
-              {/* <Route path="horarios" element={<HorariosView />} /> */}
-              {/* <Route path="progreso" element={<ProgresoView />} /> */}
-              
-              {/* Mantenemos la ruta para ver el detalle de un deportista, pero ahora anidada */}
+              <Route path="progreso" element={<ProgresoView />} />
               <Route path="deportistas/ver/:id" element={<DeportistaDetalle />} /> 
               <Route path="deportistas/ver/:deportistaId/progresos" element={<ProgresoHistorial />} /> 
             </Route>
           </Route>
           
-          {/* Redirección por defecto y página no encontrada */}
           <Route path="/" element={<Navigate to="/login" replace />} />
           <Route path="*" element={<p>Página no encontrada: 404!</p>} />
         </Routes>

@@ -2,7 +2,6 @@
  * Styles for the main content views within a layout
  */
 
-/* --- Contenedor General de la Vista --- */
 .view-container {
     padding: 1rem;
     animation: fadeIn 0.5s ease-in-out;
@@ -52,7 +51,6 @@
 .action-button-view.secondary { background-color: #6c757d; color: white; }
 .action-button-view.secondary:hover { background-color: #5a6268; transform: translateY(-2px); box-shadow: 0 4px 10px rgba(108, 117, 125, 0.3); }
 
-/* --- Tarjetas de Deportistas (Vista 'Mis Deportistas') --- */
 .athlete-cards-container-view {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
@@ -77,17 +75,12 @@
 .athlete-card-actions button { background: transparent; border: 1px solid #ced4da; color: #495057; padding: 0.4rem 0.8rem; border-radius: 6px; font-size: 0.85rem; font-weight: 600; cursor: pointer; transition: background-color 0.2s, color 0.2s; }
 .athlete-card-actions button:hover { background-color: #e9ecef; color: #000; }
 
-/* ======================================================= */
-/* ---             NUEVOS ESTILOS PARA DASHBOARD         --- */
-/* ======================================================= */
-
 .dashboard-view .welcome-message {
     color: #6c757d;
     font-size: 1rem;
     margin: 0;
 }
 
-/* --- Grid de Estadísticas --- */
 .stats-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
@@ -106,23 +99,6 @@
     border: 1px solid #e9ecef;
 }
 
-.stat-icon {
-    width: 60px;
-    height: 60px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background-size: 50%;
-    background-repeat: no-repeat;
-    background-position: center;
-}
-
-/* Iconos (puedes usar SVGs reales aquí) */
-.stat-icon.deportistas { background-color: #e0f7fa; background-image: url('data:image/svg+xml,...'); /* SVG de un corredor */ }
-.stat-icon.horarios { background-color: #fff3e0; background-image: url('data:image/svg+xml,...'); /* SVG de un calendario */ }
-.stat-icon.progresos { background-color: #e8f5e9; background-image: url('data:image/svg+xml,...'); /* SVG de un gráfico */ }
-
 .stat-info h2 {
     margin: 0;
     font-size: 2.5rem;
@@ -135,7 +111,6 @@
     font-weight: 500;
 }
 
-/* --- Grid de Widgets --- */
 .dashboard-widgets {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -200,7 +175,64 @@
     text-decoration: underline;
 }
 
-/* Responsive para los widgets */
+.table-container {
+    background-color: #fff;
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+    overflow-x: auto;
+}
+
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.data-table thead th {
+    background-color: #f8f9fa;
+    color: #495057;
+    font-weight: 600;
+    text-align: left;
+    padding: 0.75rem 1rem;
+    border-bottom: 2px solid #dee2e6;
+}
+
+.data-table tbody td {
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid #e9ecef;
+    color: #6c757d;
+    vertical-align: middle;
+}
+
+.data-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.data-table tbody tr:hover {
+    background-color: #f8f9fa;
+}
+
+.table-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.table-actions .action-button {
+    padding: 0.3rem 0.6rem;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    border: 1px solid transparent;
+    cursor: pointer;
+}
+
+.table-actions .action-button.edit {
+    background-color: #e0f2fe;
+    color: #0c5460;
+}
+.table-actions .action-button.edit:hover {
+    background-color: #b3e5fc;
+}
+
 @media (max-width: 992px) {
     .dashboard-widgets {
         grid-template-columns: 1fr;

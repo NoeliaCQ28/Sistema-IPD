@@ -8,6 +8,9 @@ import java.util.List;
 
 @Repository
 public interface ProgresoDeportistaRepository extends JpaRepository<ProgresoDeportista, Long> {
+
     List<ProgresoDeportista> findByDeportistaIdOrderByFechaRegistroDesc(Long deportistaId);
+
+    // Este es el método estándar y más fiable que usaremos.
     List<ProgresoDeportista> findByEntrenadorIdOrderByFechaRegistroDesc(Long entrenadorId);
 }

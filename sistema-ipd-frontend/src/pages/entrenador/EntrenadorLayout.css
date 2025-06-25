@@ -7,5 +7,5 @@
 .main-content-area {
     flex-grow: 1;
     padding: 2rem;
-    overflow-y: auto; /* Para scroll si el contenido es largo */
+    overflow-y: auto;
 }

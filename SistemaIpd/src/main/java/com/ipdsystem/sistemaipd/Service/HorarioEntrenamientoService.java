@@ -1,5 +1,6 @@
 package com.ipdsystem.sistemaipd.Service;
 
+import com.ipdsystem.sistemaipd.Dto.HorarioEntrenamientoDTO; // <-- IMPORTACIÓN NUEVA
 import com.ipdsystem.sistemaipd.Entity.HorarioEntrenamiento;
 import com.ipdsystem.sistemaipd.Repository.HorarioEntrenamientoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,6 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors; // <-- IMPORTACIÓN NUEVA
 
 @Service
 public class HorarioEntrenamientoService {
@@ -16,19 +18,12 @@ public class HorarioEntrenamientoService {
     private HorarioEntrenamientoRepository horarioEntrenamientoRepository;
 
     @Transactional(readOnly = true)
-    public List<HorarioEntrenamiento> obtenerTodos() {
-        return horarioEntrenamientoRepository.findAll();
+    public List<HorarioEntrenamientoDTO> getHorariosByEntrenadorId(Long entrenadorId) {
+        List<HorarioEntrenamiento> horarios = horarioEntrenamientoRepository.findByEntrenadorId(entrenadorId);
+        return horarios.stream()
+                .map(HorarioEntrenamientoDTO::fromEntity)
+                .collect(Collectors.toList());
     }
 
-    @Transactional(readOnly = true)
-    public Optional<HorarioEntrenamiento> obtenerPorId(Long id) {
-        return horarioEntrenamientoRepository.findById(id);
-    }
-
-    @Transactional(readOnly = true)
-    public List<HorarioEntrenamiento> getHorariosByDeportistaId(Long deportistaId) {
-        return horarioEntrenamientoRepository.findByDeportistaId(deportistaId);
-    }
-
-    // Puedes añadir métodos para crear, actualizar, eliminar si se necesitan directamente desde aquí
+    // Los demás métodos se mantienen si los tienes...
 }

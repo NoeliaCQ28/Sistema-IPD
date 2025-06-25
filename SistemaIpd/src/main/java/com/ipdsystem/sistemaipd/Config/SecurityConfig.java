@@ -49,23 +49,22 @@ public class SecurityConfig {
                         // REGLAS PARA ENTRENADORES:
                         .requestMatchers(HttpMethod.GET, "/api/v1/entrenadores/{id}").hasAnyRole("ENTRENADOR", "ADMINISTRADOR")
                         .requestMatchers(HttpMethod.GET, "/api/v1/entrenadores/{id}/deportistas").hasAnyRole("ENTRENADOR", "ADMINISTRADOR")
+                        .requestMatchers(HttpMethod.GET, "/api/v1/entrenadores/{entrenadorId}/progresos/todos").hasAnyRole("ENTRENADOR", "ADMINISTRADOR")
+                        .requestMatchers(HttpMethod.GET, "/api/v1/entrenadores/{entrenadorId}/horarios/todos").hasAnyRole("ENTRENADOR", "ADMINISTRADOR") // <-- REGLA CORREGIDA/AÑADIDA
                         .requestMatchers(HttpMethod.POST, "/api/v1/entrenadores/{entrenadorId}/horarios-asignar").hasAnyRole("ENTRENADOR", "ADMINISTRADOR")
                         .requestMatchers(HttpMethod.POST, "/api/v1/entrenadores/{entrenadorId}/progresos").hasAnyRole("ENTRENADOR", "ADMINISTRADOR")
                         .requestMatchers(HttpMethod.PUT, "/api/v1/entrenadores/{entrenadorId}/progresos/{progresoId}").hasAnyRole("ENTRENADOR", "ADMINISTRADOR")
                         .requestMatchers(HttpMethod.DELETE, "/api/v1/entrenadores/{entrenadorId}/progresos/{progresoId}").hasAnyRole("ENTRENADOR", "ADMINISTRADOR")
 
-                        // --- REGLAS PARA MENSAJERÍA REST ---
+                        // REGLAS PARA MENSAJERÍA REST
                         .requestMatchers(HttpMethod.POST, "/api/v1/mensajes/enviar").hasAnyRole("DEPORTISTA", "ENTRENADOR")
                         .requestMatchers(HttpMethod.GET, "/api/v1/mensajes/conversacion/{otroUsuarioId}/{otroUsuarioRol}").hasAnyRole("DEPORTISTA", "ENTRENADOR")
                         .requestMatchers(HttpMethod.PUT, "/api/v1/mensajes/{mensajeId}/leido").hasAnyRole("DEPORTISTA", "ENTRENADOR")
                         .requestMatchers(HttpMethod.GET, "/api/v1/mensajes/no-leidos/conteo").hasAnyRole("DEPORTISTA", "ENTRENADOR")
-                        // --- LÍNEA AÑADIDA ---
                         .requestMatchers(HttpMethod.GET, "/api/v1/mensajes/no-leidos/por-remitente").hasAnyRole("DEPORTISTA", "ENTRENADOR")
-                        // --- FIN DE LA LÍNEA AÑADIDA ---
-                        // Admin también puede acceder a todos los endpoints REST de mensajes
                         .requestMatchers("/api/v1/mensajes/**").hasRole("ADMINISTRADOR")
 
-                        // --- REGLAS PARA WEBSOCKETS ---
+                        // REGLAS PARA WEBSOCKETS
                         .requestMatchers("/ws/**").authenticated()
 
                         // REGLAS GENERALES para administradores
