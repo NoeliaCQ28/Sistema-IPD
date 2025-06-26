@@ -2,6 +2,7 @@ package com.ipdsystem.sistemaipd.Service;
 
 import com.ipdsystem.sistemaipd.Dto.AsistenciaRequestDTO;
 import com.ipdsystem.sistemaipd.Dto.AsistenciaResponseDTO;
+import com.ipdsystem.sistemaipd.Dto.AsistenciaStatsDTO;
 import com.ipdsystem.sistemaipd.Entity.Asistencia;
 import com.ipdsystem.sistemaipd.Entity.Deportista;
 import com.ipdsystem.sistemaipd.Entity.Entrenador;
@@ -14,6 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -32,7 +34,7 @@ public class AsistenciaService {
     /**
      * Obtiene el historial completo de asistencias para un deportista.
      * @param deportistaId El ID del deportista.
-     * @return Una lista de DTOs de asistencia ordenados por fecha.
+     * @return Una lista de DTOs de asistencia.
      */
     @Transactional(readOnly = true)
     public List<AsistenciaResponseDTO> getHistorialDeAsistenciasPorDeportista(Long deportistaId) {
@@ -43,21 +45,18 @@ public class AsistenciaService {
     }
 
     /**
-     * Obtiene la lista de asistencias para una fecha y entrenador específicos.
-     * Si no existen registros para esa fecha, los crea en memoria (sin guardarlos)
-     * con un estado por defecto para que el entrenador pueda modificarlos.
-     * @param entrenadorId El ID del entrenador que toma la asistencia.
-     * @param fecha La fecha para la cual se quiere tomar asistencia.
-     * @return Una lista de DTOs de asistencia, listos para ser mostrados en el frontend.
+     * Obtiene la lista de deportistas para tomar asistencia en una fecha específica.
+     * Si no hay registro, crea uno en memoria para ser modificado.
+     * @param entrenadorId El ID del entrenador.
+     * @param fecha La fecha de la asistencia.
+     * @return Una lista de DTOs listos para el formulario.
      */
     @Transactional
     public List<AsistenciaResponseDTO> getOrCreateAsistenciasParaFecha(Long entrenadorId, LocalDate fecha) {
         Entrenador entrenador = entrenadorRepository.findById(entrenadorId)
                 .orElseThrow(() -> new EntityNotFoundException("Entrenador no encontrado con ID: " + entrenadorId));
 
-        List<Deportista> deportistas = entrenador.getDeportistasACargo().stream().collect(Collectors.toList());
-
-        return deportistas.stream().map(deportista -> {
+        return entrenador.getDeportistasACargo().stream().map(deportista -> {
             Asistencia asistencia = asistenciaRepository
                     .findByDeportistaIdAndFecha(deportista.getId(), fecha)
                     .orElseGet(() -> {
@@ -73,8 +72,7 @@ public class AsistenciaService {
     }
 
     /**
-     * Guarda o actualiza una lista de registros de asistencia.
-     * Ideal para procesar el formulario de "Tomar Asistencia".
+     * Guarda o actualiza múltiples registros de asistencia.
      * @param entrenadorId El ID del entrenador que registra.
      * @param asistenciasDTO La lista de asistencias a guardar.
      */
@@ -102,5 +100,48 @@ public class AsistenciaService {
 
             asistenciaRepository.save(asistencia);
         }
+    }
+
+    /**
+     * Calcula y devuelve las estadísticas de asistencia para todos los deportistas
+     * de un entrenador en un rango de fechas específico.
+     * @param entrenadorId El ID del entrenador.
+     * @param fechaInicio La fecha de inicio del reporte.
+     * @param fechaFin La fecha de fin del reporte.
+     * @return Una lista con las estadísticas de cada deportista.
+     */
+    @Transactional(readOnly = true)
+    public List<AsistenciaStatsDTO> getReporteAsistencia(Long entrenadorId, LocalDate fechaInicio, LocalDate fechaFin) {
+        Entrenador entrenador = entrenadorRepository.findById(entrenadorId)
+                .orElseThrow(() -> new EntityNotFoundException("Entrenador no encontrado"));
+
+        List<AsistenciaStatsDTO> estadisticas = new ArrayList<>();
+
+        for (Deportista deportista : entrenador.getDeportistasACargo()) {
+            List<Asistencia> asistencias = asistenciaRepository.findByDeportistaIdOrderByFechaDesc(deportista.getId());
+
+            List<Asistencia> asistenciasFiltradas = asistencias.stream()
+                    .filter(a -> !a.getFecha().isBefore(fechaInicio) && !a.getFecha().isAfter(fechaFin))
+                    .toList();
+
+            long totalPresente = asistenciasFiltradas.stream().filter(a -> a.getEstado() == Asistencia.EstadoAsistencia.PRESENTE).count();
+            long totalAusente = asistenciasFiltradas.stream().filter(a -> a.getEstado() == Asistencia.EstadoAsistencia.AUSENTE).count();
+            long totalJustificado = asistenciasFiltradas.stream().filter(a -> a.getEstado() == Asistencia.EstadoAsistencia.JUSTIFICADO).count();
+            long totalRegistros = asistenciasFiltradas.size();
+
+            double porcentaje = (totalRegistros == 0) ? 0 : ((double) totalPresente / totalRegistros) * 100;
+
+            estadisticas.add(new AsistenciaStatsDTO(
+                    deportista.getId(),
+                    deportista.getNombres() + " " + deportista.getApellidos(),
+                    totalPresente,
+                    totalAusente,
+                    totalJustificado,
+                    totalRegistros,
+                    Math.round(porcentaje * 100.0) / 100.0 // Redondeamos a 2 decimales
+            ));
+        }
+
+        return estadisticas;
     }
 }

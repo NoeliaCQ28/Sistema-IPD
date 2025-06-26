@@ -1,44 +1,44 @@
-    import React from 'react';
-    import { NavLink, useNavigate } from 'react-router-dom';
-    import { useAuth } from '../../context/AuthContext';
-    import './Sidebar.css';
+import React from 'react';
+import { NavLink, useNavigate } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
+import './Sidebar.css';
 
-    const Sidebar = () => {
-        const { user, logout } = useAuth();
-        const navigate = useNavigate();
+const Sidebar = () => {
+    const { user, logout } = useAuth();
+    const navigate = useNavigate();
 
-        if (!user) return null;
+    if (!user) {
+        return null; // Evita errores si el componente se renderiza antes de tener el usuario
+    }
 
-        const handleLogout = () => {
-            logout();
-            navigate('/login');
-        };
-
-        return (
-            <aside className="sidebar">
-                <div className="sidebar-profile">
-                    <img src={`https://i.pravatar.cc/150?u=${user.id}`} alt="Perfil" />
-                    <h3>{user.nombres} {user.apellidos}</h3>
-                    <p>{user.rol.charAt(0).toUpperCase() + user.rol.slice(1).toLowerCase()}</p>
-                </div>
-                <nav className="sidebar-nav">
-                    <NavLink to="/portal/entrenador/dashboard">Dashboard</NavLink>
-                    <NavLink to="/portal/entrenador/mis-deportistas">Mis Deportistas</NavLink>
-                    <NavLink to="/portal/entrenador/progreso">Historial de Progreso</NavLink>
-                    <NavLink to="/portal/entrenador/horarios">Horarios</NavLink>
-                    <NavLink to="/portal/entrenador/asistencia">Tomar Asistencia</NavLink>
-                    <NavLink to="/portal/entrenador/perfil">Mi Perfil</NavLink>
-                    {/* --- NUEVO ENLACE AÑADIDO --- */}
-                    <NavLink to="/portal/entrenador/analisis">Análisis de Progreso</NavLink>
-                </nav>
-                <div className="sidebar-footer">
-                    <button onClick={handleLogout} className="logout-button-sidebar">
-                        Cerrar Sesión
-                    </button>
-                </div>
-            </aside>
-        );
+    const handleLogout = () => {
+        logout();
+        navigate('/login');
     };
 
-    export default Sidebar;
-    
+    return (
+        <aside className="sidebar">
+            <div className="sidebar-profile">
+                <img src={`https://i.pravatar.cc/150?u=${user.id}`} alt="Perfil" />
+                <h3>{user.nombres} {user.apellidos}</h3>
+                <p>{user.rol.charAt(0).toUpperCase() + user.rol.slice(1).toLowerCase()}</p>
+            </div>
+            <nav className="sidebar-nav">
+                <NavLink to="/portal/entrenador/dashboard">Dashboard</NavLink>
+                <NavLink to="/portal/entrenador/mis-deportistas">Mis Deportistas</NavLink>
+                <NavLink to="/portal/entrenador/progreso">Historial de Progreso</NavLink>
+                <NavLink to="/portal/entrenador/horarios">Horarios</NavLink>
+                <NavLink to="/portal/entrenador/asistencia">Asistencia</NavLink>
+                <NavLink to="/portal/entrenador/perfil">Mi Perfil</NavLink>
+                <NavLink to="/portal/entrenador/analisis">Análisis de Progreso</NavLink>
+            </nav>
+            <div className="sidebar-footer">
+                <button onClick={handleLogout} className="logout-button-sidebar">
+                    Cerrar Sesión
+                </button>
+            </div>
+        </aside>
+    );
+};
+
+export default Sidebar;

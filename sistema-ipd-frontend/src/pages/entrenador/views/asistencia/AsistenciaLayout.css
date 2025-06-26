@@ -1,0 +1,29 @@
+.sub-nav {
+    display: flex;
+    border-bottom: 2px solid #e0e0e0;
+    margin-bottom: 2rem;
+}
+
+.sub-nav-link {
+    padding: 0.8rem 1.5rem;
+    text-decoration: none;
+    color: #6c757d;
+    font-weight: 600;
+    font-size: 1rem;
+    border-bottom: 3px solid transparent;
+    transition: all 0.2s ease-in-out;
+    margin-bottom: -2px; /* Alinea el borde inferior con el borde del contenedor */
+}
+
+.sub-nav-link:hover {
+    color: #333;
+}
+
+.sub-nav-link.active {
+    color: #007bff;
+    border-bottom-color: #007bff;
+}
+
+.sub-nav-content {
+    padding-top: 1rem;
+}

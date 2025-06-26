@@ -31,9 +31,13 @@ import DashboardView from './pages/entrenador/views/DashboardView';
 import DeportistasView from './pages/entrenador/views/DeportistasView';
 import ProgresoView from './pages/entrenador/views/ProgresoView';
 import HorariosView from './pages/entrenador/views/HorariosView';
-import AsistenciaView from './pages/entrenador/views/AsistenciaView';
 import ProfileView from './pages/entrenador/views/ProfileView';
 import AnalisisProgresoView from './pages/entrenador/views/AnalisisProgresoView';
+
+// --- NUEVAS IMPORTACIONES PARA LA SECCIÓN DE ASISTENCIA REESTRUCTURADA ---
+import AsistenciaLayout from './pages/entrenador/views/asistencia/AsistenciaLayout';
+import TomarAsistenciaView from './pages/entrenador/views/asistencia/TomarAsistenciaView';
+import ReporteAsistenciaView from './pages/entrenador/views/asistencia/ReporteAsistenciaView';
 
 
 function App() {
@@ -78,7 +82,14 @@ function App() {
               <Route path="mis-deportistas" element={<DeportistasView />} />
               <Route path="progreso" element={<ProgresoView />} />
               <Route path="horarios" element={<HorariosView />} />
-              <Route path="asistencia" element={<AsistenciaView />} /> 
+              
+              {/* --- NUEVA ESTRUCTURA DE RUTAS PARA ASISTENCIA --- */}
+              <Route path="asistencia" element={<AsistenciaLayout />}>
+                <Route index element={<Navigate to="tomar" replace />} />
+                <Route path="tomar" element={<TomarAsistenciaView />} />
+                <Route path="reporte" element={<ReporteAsistenciaView />} />
+              </Route>
+
               <Route path="perfil" element={<ProfileView />} />
               <Route path="analisis" element={<AnalisisProgresoView />} />
               

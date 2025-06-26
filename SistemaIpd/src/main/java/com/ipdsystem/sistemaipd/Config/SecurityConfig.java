@@ -64,8 +64,9 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/api/v1/asistencias/entrenador/{entrenadorId}").hasAnyRole("ENTRENADOR", "ADMINISTRADOR")
                         .requestMatchers(HttpMethod.GET, "/api/v1/asistencias/deportista/{deportistaId}").hasAnyRole("DEPORTISTA", "ENTRENADOR", "ADMINISTRADOR")
 
-                        // --- NUEVA REGLA AÑADIDA PARA ANÁLISIS ---
-                        .requestMatchers(HttpMethod.GET, "/api/v1/analisis/**").hasAnyRole("ENTRENADOR", "ADMINISTRADOR")
+                        // Reglas para Análisis
+                        .requestMatchers(HttpMethod.GET, "/api/v1/analisis/progreso").hasAnyRole("ENTRENADOR", "ADMINISTRADOR")
+                        .requestMatchers(HttpMethod.GET, "/api/v1/analisis/asistencia/reporte").hasAnyRole("ENTRENADOR", "ADMINISTRADOR")
 
                         // Rutas de Mensajería
                         .requestMatchers(HttpMethod.POST, "/api/v1/mensajes/enviar").hasAnyRole("DEPORTISTA", "ENTRENADOR")

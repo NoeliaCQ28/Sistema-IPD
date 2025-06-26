@@ -1,10 +1,11 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { useAuth } from '../../../context/AuthContext';
-import './AsistenciaView.css'; // Crearemos este archivo para los estilos
+import { useAuth } from '../../../../context/AuthContext';
+// --- RUTA CSS CORREGIDA ---
+import '../Views.css'; 
+import './TomarAsistenciaView.css'; 
 
-const AsistenciaView = () => {
+const TomarAsistenciaView = () => {
     const { user, authHeader } = useAuth();
-    // Inicializa la fecha a la fecha actual en formato YYYY-MM-DD
     const [fecha, setFecha] = useState(new Date().toISOString().split('T')[0]);
     const [listaAsistencia, setListaAsistencia] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -68,12 +69,10 @@ const AsistenciaView = () => {
                 body: JSON.stringify(payload)
             });
 
-            if (!response.ok) {
-                throw new Error('Ocurrió un error al guardar la asistencia.');
-            }
+            if (!response.ok) throw new Error('Ocurrió un error al guardar la asistencia.');
             
             setSaveMessage('Asistencia guardada con éxito!');
-            setTimeout(() => setSaveMessage(''), 3000); // El mensaje desaparece después de 3 segundos
+            setTimeout(() => setSaveMessage(''), 3000);
 
         } catch (err) {
             setError(err.message);
@@ -83,11 +82,7 @@ const AsistenciaView = () => {
     };
 
     return (
-        <div className="view-container">
-            <header className="view-header">
-                <h1>Tomar Asistencia</h1>
-            </header>
-
+        <div>
             <div className="asistencia-controls">
                 <label htmlFor="fecha-asistencia">Selecciona la fecha:</label>
                 <input
@@ -144,4 +139,4 @@ const AsistenciaView = () => {
     );
 };
 
-export default AsistenciaView;
+export default TomarAsistenciaView;

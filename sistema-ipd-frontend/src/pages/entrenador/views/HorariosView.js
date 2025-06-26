@@ -1,30 +1,29 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Calendar, momentLocalizer } from 'react-big-calendar';
 import moment from 'moment';
-import 'moment/locale/es'; // Importar localización en español para moment
+import 'moment/locale/es';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 import { useAuth } from '../../../context/AuthContext';
 import Modal from '../../../components/Modal';
 import AsignarHorarioForm from '../../../components/horarios/AsignarHorarioForm';
 import './Views.css';
 
-// Configurar moment en español para que el calendario muestre "Lunes", "Martes", etc.
 moment.locale('es');
 const localizer = momentLocalizer(moment);
 
 const HorariosView = () => {
     const { user, authHeader } = useAuth();
     const [events, setEvents] = useState([]);
-    const [deportistas, setDeportistas] = useState([]); // Necesario para el formulario de edición
+    const [deportistas, setDeportistas] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     
-    // Estado para manejar los modales
     const [selectedEvent, setSelectedEvent] = useState(null);
     const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+    // --- NUEVO ESTADO PARA EL MODAL DE CREACIÓN ---
+    const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
 
-    // Función para convertir los datos de la API al formato que el calendario espera
     const transformDataToEvents = useCallback((horarios) => {
         const calendarEvents = [];
         const daysOfWeek = {
@@ -41,20 +40,18 @@ const HorariosView = () => {
             const [startHour, startMinute] = startStr.split(':').map(Number);
             const [endHour, endMinute] = endStr.split(':').map(Number);
 
-            // Generamos eventos recurrentes para varias semanas para que el calendario no se vea vacío
-            for (let i = -2; i <= 2; i++) {
+            for (let i = -4; i <= 4; i++) { // Aumentamos el rango para que se vean más eventos
                 const startDateTime = moment().add(i, 'weeks').day(dayIndex).hour(startHour).minute(startMinute).second(0);
                 const endDateTime = moment().add(i, 'weeks').day(dayIndex).hour(endHour).minute(endMinute).second(0);
                 
                 calendarEvents.push({
-                    // Creamos un ID único para cada instancia del evento recurrente
                     id: `${horario.id}-${i}`, 
-                    originalId: horario.id, // Guardamos el ID real para las llamadas a la API
+                    originalId: horario.id,
                     title: `${horario.actividad} (${horario.deportistaNombre})`,
                     start: startDateTime.toDate(),
                     end: endDateTime.toDate(),
                     allDay: false,
-                    resource: horario, // Guardamos el objeto original con todos los datos
+                    resource: horario,
                 });
             }
         });
@@ -66,7 +63,6 @@ const HorariosView = () => {
         setLoading(true);
         setError(null);
         try {
-            // Pedimos tanto los horarios como los deportistas (para el formulario de edición)
             const [horariosRes, deportistasRes] = await Promise.all([
                 fetch(`http://localhost:8081/api/v1/entrenadores/${user.id}/horarios/todos`, { headers: { 'Authorization': authHeader } }),
                 fetch(`http://localhost:8081/api/v1/entrenadores/${user.id}/deportistas`, { headers: { 'Authorization': authHeader } })
@@ -97,14 +93,13 @@ const HorariosView = () => {
     };
 
     const handleEditClick = () => {
-        setIsDetailModalOpen(false); // Cierra el modal de detalles
-        setIsEditModalOpen(true);   // Abre el modal de edición
+        setIsDetailModalOpen(false);
+        setIsEditModalOpen(true);
     };
 
     const handleDeleteClick = async () => {
-        if (!selectedEvent || !window.confirm('¿Estás seguro de que quieres eliminar este horario? Esta acción es permanente.')) {
-            return;
-        }
+        if (!selectedEvent || !window.confirm('¿Estás seguro de que quieres eliminar este horario?')) return;
+        
         try {
             const response = await fetch(`http://localhost:8081/api/v1/horarios/${selectedEvent.resource.id}`, {
                 method: 'DELETE',
@@ -113,7 +108,7 @@ const HorariosView = () => {
             if (!response.ok) throw new Error('No se pudo eliminar el horario.');
             setIsDetailModalOpen(false);
             setSelectedEvent(null);
-            fetchData(); // Recargamos los eventos para que desaparezca del calendario
+            fetchData();
         } catch (err) {
             alert(`Error al eliminar: ${err.message}`);
         }
@@ -121,8 +116,9 @@ const HorariosView = () => {
 
     const handleFormSave = () => {
         setIsEditModalOpen(false);
+        setIsCreateModalOpen(false); // Cierra también el modal de creación
         setSelectedEvent(null);
-        fetchData(); // Recargamos los eventos para ver los cambios
+        fetchData(); // Recarga los datos
     };
     
     if (loading) return <p>Cargando horarios...</p>;
@@ -132,6 +128,12 @@ const HorariosView = () => {
         <div className="view-container">
             <header className="view-header">
                 <h1>Calendario de Horarios</h1>
+                {/* --- BOTÓN AÑADIDO --- */}
+                <div className="view-actions">
+                    <button onClick={() => setIsCreateModalOpen(true)} className="action-button-view primary">
+                        + Asignar Nuevo Horario
+                    </button>
+                </div>
             </header>
             <div className="calendar-container">
                 <Calendar
@@ -155,9 +157,19 @@ const HorariosView = () => {
                     defaultView="week"
                     views={['month', 'week', 'day', 'agenda']}
                     culture='es'
-                    onSelectEvent={handleSelectEvent} // <-- Evento para abrir el modal
+                    onSelectEvent={handleSelectEvent}
                 />
             </div>
+
+            {/* Modal para Crear Horario */}
+            <Modal isOpen={isCreateModalOpen} onClose={() => setIsCreateModalOpen(false)} title="Asignar Nuevo Horario">
+                 <AsignarHorarioForm
+                    deportistasAsignados={deportistas}
+                    entrenadorId={user?.id}
+                    onHorarioGuardado={handleFormSave}
+                    onCancel={() => setIsCreateModalOpen(false)}
+                />
+            </Modal>
 
             {/* Modal de Detalles del Evento */}
             {selectedEvent && (
@@ -180,9 +192,10 @@ const HorariosView = () => {
             <Modal isOpen={isEditModalOpen} onClose={() => setIsEditModalOpen(false)} title="Editar Horario">
                 <AsignarHorarioForm
                     deportistasAsignados={deportistas}
+                    entrenadorId={user?.id}
                     onHorarioGuardado={handleFormSave}
                     onCancel={() => setIsEditModalOpen(false)}
-                    editingHorario={selectedEvent} // Pasamos el evento seleccionado al formulario
+                    editingHorario={selectedEvent}
                 />
             </Modal>
         </div>

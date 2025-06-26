@@ -2,7 +2,9 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '../../../context/AuthContext';
 import Modal from '../../../components/Modal';
 import ProgresoForm from '../../../components/progreso/ProgresoForm';
-import Papa from 'papaparse'; // <-- NUEVA IMPORTACIÓN
+import Papa from 'papaparse';
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable'; // Importamos la función directamente
 import './Views.css';
 
 const ProgresoView = () => {
@@ -26,8 +28,8 @@ const ProgresoView = () => {
                 fetch(`http://localhost:8081/api/v1/entrenadores/${user.id}/deportistas`, { headers: { 'Authorization': authHeader } })
             ]);
 
-            if (!progresosRes.ok) throw new Error('No se pudo cargar el historial de progreso. Verifique sus permisos.');
-            if (!deportistasRes.ok) throw new Error('No se pudieron cargar los deportistas para el formulario.');
+            if (!progresosRes.ok) throw new Error('No se pudo cargar el historial de progreso.');
+            if (!deportistasRes.ok) throw new Error('No se pudieron cargar los deportistas.');
 
             const progresosData = await progresosRes.json();
             const deportistasData = await deportistasRes.json();
@@ -46,36 +48,9 @@ const ProgresoView = () => {
         fetchData();
     }, [fetchData]);
 
-    const handleOpenModal = (progreso = null) => {
-        setEditingProgreso(progreso);
-        setIsModalOpen(true);
-    };
-
-    const handleProgresoSaved = () => {
-        setIsModalOpen(false);
-        setEditingProgreso(null);
-        fetchData();
-    };
-
-    const handleDelete = async (progresoId) => {
-        if (!window.confirm('¿Estás seguro de que quieres eliminar este registro de progreso?')) return;
-
-        try {
-            const response = await fetch(`http://localhost:8081/api/v1/entrenadores/${user.id}/progresos/${progresoId}`, {
-                method: 'DELETE',
-                headers: { 'Authorization': authHeader }
-            });
-            if (!response.ok) throw new Error('No se pudo eliminar el registro.');
-            fetchData();
-        } catch (err) {
-            alert(`Error al eliminar: ${err.message}`);
-        }
-    };
-    
-    // --- NUEVA FUNCIÓN PARA EXPORTAR ---
     const handleExportCSV = () => {
         if (progresos.length === 0) {
-            alert("No hay datos para exportar.");
+            alert("No hay datos de progreso para exportar.");
             return;
         }
 
@@ -84,8 +59,7 @@ const ProgresoView = () => {
             'Deportista': p.deportistaNombreCompleto,
             'Métrica': p.tipoMebrica,
             'Valor': p.valor,
-            'Observaciones': p.observaciones || 'N/A',
-            'Fecha de Creación': new Date(p.fechaCreacion).toLocaleString('es-ES')
+            'Observaciones': p.observaciones || 'N/A'
         }));
 
         const csv = Papa.unparse(dataToExport);
@@ -99,7 +73,58 @@ const ProgresoView = () => {
         link.click();
         document.body.removeChild(link);
     };
-    // --- FIN DE LA NUEVA FUNCIÓN ---
+
+    const handleExportPDF = () => {
+        if (progresos.length === 0) {
+            alert("No hay datos para exportar a PDF.");
+            return;
+        }
+
+        const doc = new jsPDF();
+
+        doc.setFontSize(18);
+        doc.text("Reporte de Historial de Progreso", 14, 22);
+        doc.setFontSize(11);
+        doc.setTextColor(100);
+        doc.text(`Generado por: ${user.nombres} ${user.apellidos}`, 14, 30);
+        doc.text(`Fecha: ${new Date().toLocaleDateString('es-ES')}`, 14, 36);
+
+        const tableColumn = ["Fecha", "Deportista", "Métrica", "Valor", "Observaciones"];
+        const tableRows = [];
+
+        progresos.forEach(p => {
+            const progresoData = [
+                new Date(p.fechaRegistro + 'T00:00:00').toLocaleDateString('es-ES'),
+                p.deportistaNombreCompleto,
+                p.tipoMebrica,
+                p.valor,
+                p.observaciones || 'N/A'
+            ];
+            tableRows.push(progresoData);
+        });
+
+        // --- LLAMADA CORREGIDA A LA FUNCIÓN ---
+        // Se llama a autoTable como una función externa, pasándole el documento 'doc'.
+        autoTable(doc, {
+            head: [tableColumn],
+            body: tableRows,
+            startY: 50,
+            theme: 'striped',
+            headStyles: { fillColor: [44, 62, 80] }
+        });
+
+        doc.save(`reporte_progreso_${user.apellidos}.pdf`);
+    };
+
+    const handleOpenModal = (progreso = null) => { setEditingProgreso(progreso); setIsModalOpen(true); };
+    const handleProgresoSaved = () => { setIsModalOpen(false); setEditingProgreso(null); fetchData(); };
+    const handleDelete = async (progresoId) => {
+        if (!window.confirm('¿Estás seguro?')) return;
+        try {
+            await fetch(`http://localhost:8081/api/v1/entrenadores/${user.id}/progresos/${progresoId}`, { method: 'DELETE', headers: { 'Authorization': authHeader }});
+            fetchData();
+        } catch (err) { alert(`Error: ${err.message}`); }
+    };
 
     if (loading && !error) return <p>Cargando historial de progreso...</p>;
     
@@ -108,11 +133,14 @@ const ProgresoView = () => {
             <header className="view-header">
                 <h1>Historial de Progreso</h1>
                 <div className="view-actions">
+                    <button onClick={handleExportPDF} className="action-button-view secondary" style={{backgroundColor: '#c0392b'}}>
+                        Exportar a PDF
+                    </button>
                     <button onClick={handleExportCSV} className="action-button-view secondary">
                         Exportar a CSV
                     </button>
                     <button className="action-button-view primary" onClick={() => handleOpenModal()}>
-                        + Registrar Nuevo Progreso
+                        + Registrar Progreso
                     </button>
                 </div>
             </header>
