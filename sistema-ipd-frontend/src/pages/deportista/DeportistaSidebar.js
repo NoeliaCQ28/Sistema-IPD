@@ -28,6 +28,8 @@ const DeportistaSidebar = () => {
                 <NavLink to="/portal/deportista/horarios">Mi Horario</NavLink>
                 <NavLink to="/portal/deportista/progresos">Mis Progresos</NavLink>
                 <NavLink to="/portal/deportista/mensajeria">Mensajería</NavLink>
+                <NavLink to="/portal/deportista/torneos">Torneos</NavLink> {/* <-- NUEVO ENLACE */}
+
             </nav>
             <div className="sidebar-footer">
                 <button onClick={handleLogout} className="logout-button-sidebar">

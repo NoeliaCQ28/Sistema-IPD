@@ -1,0 +1,89 @@
+.torneos-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 1.5rem;
+}
+
+.torneo-card {
+    background-color: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    border: 1px solid #e2e8f0;
+    display: flex;
+    flex-direction: column;
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+.torneo-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+}
+
+.torneo-card-header {
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.torneo-card-header h3 {
+    margin: 0;
+    font-size: 1.25rem;
+    color: #1a202c;
+}
+
+.torneo-categoria {
+    font-size: 0.8rem;
+    font-weight: bold;
+    color: #c52127;
+    text-transform: uppercase;
+}
+
+.torneo-card-body {
+    padding: 1.5rem;
+    flex-grow: 1;
+    color: #4a5568;
+}
+
+.torneo-card-body p {
+    margin: 0 0 1rem 0;
+}
+
+.torneo-card-body p:last-child {
+    margin-bottom: 0;
+}
+
+.torneo-card-footer {
+    padding: 1rem 1.5rem;
+    background-color: #f7fafc;
+    border-top: 1px solid #e2e8f0;
+    border-bottom-left-radius: 12px;
+    border-bottom-right-radius: 12px;
+}
+
+.inscription-button {
+    width: 100%;
+    padding: 0.75rem;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.inscription-button.inscribir {
+    background-color: #28a745;
+    color: white;
+}
+
+.inscription-button.inscribir:hover {
+    background-color: #218838;
+}
+
+.inscription-button.anular {
+    background-color: #dc3545;
+    color: white;
+}
+
+.inscription-button.anular:hover {
+    background-color: #c82333;
+}

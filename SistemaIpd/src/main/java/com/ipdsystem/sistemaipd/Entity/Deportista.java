@@ -68,12 +68,24 @@ public class Deportista implements UserDetails {
     @EqualsAndHashCode.Exclude
     private Set<ProgresoDeportista> progresos = new HashSet<>();
 
-    // --- NUEVA RELACIÓN AÑADIDA ---
     @OneToMany(mappedBy = "deportista", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     @JsonManagedReference("deportista-asistencia")
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
     private Set<Asistencia> asistencias = new HashSet<>();
+
+    // --- NUEVA RELACIÓN AÑADIDA ---
+    // Un deportista puede estar inscrito en muchos torneos.
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+            name = "inscripciones", // Nombre de la tabla intermedia
+            joinColumns = @JoinColumn(name = "deportista_id"),
+            inverseJoinColumns = @JoinColumn(name = "torneo_id")
+    )
+    @JsonIgnore // Evita bucles de serialización
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
+    private Set<Torneo> torneosInscritos = new HashSet<>();
     // --- FIN DE LA NUEVA RELACIÓN ---
 
     @Override

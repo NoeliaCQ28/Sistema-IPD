@@ -1,6 +1,7 @@
 package com.ipdsystem.sistemaipd.Entity;
 
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import jakarta.persistence.*;
@@ -9,6 +10,8 @@ import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 
 import java.time.LocalDate;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Data
@@ -29,4 +32,11 @@ public class Torneo {
     private LocalDate fechaFin;
     @Column(length = 500)
     private String descripcion;
+
+    // --- RELACIÓN AÑADIDA ---
+    // Un torneo puede tener muchos deportistas inscritos.
+    // 'mappedBy' indica que la entidad Deportista es la dueña de la relación.
+    @ManyToMany(mappedBy = "torneosInscritos", fetch = FetchType.LAZY)
+    @JsonIgnore // Evita bucles infinitos al serializar a JSON
+    private Set<Deportista> deportistasInscritos = new HashSet<>();
 }

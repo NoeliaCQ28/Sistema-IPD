@@ -1,42 +1,109 @@
+/*
+  src/layouts/Sidebar.css
+  Estilos mejorados para la barra lateral del administrador.
+*/
+
+/* Contenedor principal de la barra lateral */
 .sidebar {
-  width: 240px;
-  background-color: #db1616; /* Azul oscuro */
-  color: #ecf0f1;
+  width: 250px; /* Un ancho un poco más generoso */
+  background-color: #2c3e50; /* Un azul oscuro/grisáceo, profesional y moderno */
+  color: #ecf0f1; /* Texto claro para buen contraste */
   display: flex;
-  flex-direction: column;
-  flex-shrink: 0; /* Evita que la sidebar se encoja */
+  flex-direction: column; /* Organiza los elementos verticalmente */
+  flex-shrink: 0; /* Evita que se encoja */
+  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1); /* Sombra sutil para darle profundidad */
 }
+
+/* Encabezado con el logo y título */
 .sidebar-header {
   padding: 20px;
   text-align: center;
-  border-bottom: 1px solid #34495e;
+  border-bottom: 1px solid #34495e; /* Un separador sutil */
 }
+
 .sidebar-logo {
   width: 50px;
   margin-bottom: 10px;
 }
+
 .sidebar-header h2 {
   margin: 0;
   font-size: 1.2rem;
+  color: white; /* Asegura que el título sea blanco */
 }
+
+/* Sección del perfil del usuario */
+.sidebar-profile {
+  text-align: center;
+  padding: 1rem 1.5rem 1.5rem 1.5rem;
+  border-bottom: 1px solid #34495e;
+}
+
+.sidebar-profile h3 {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: white;
+}
+
+.sidebar-profile p {
+  margin: 0.25rem 0 0 0;
+  color: #bdc3c7; /* Un gris más claro para el rol */
+  font-size: 0.9rem;
+}
+
+/* Navegación principal */
+.sidebar-nav {
+  flex-grow: 1; /* Hace que esta sección ocupe el espacio disponible, empujando el footer hacia abajo */
+  margin-top: 1.5rem;
+}
+
 .sidebar-nav ul {
   list-style: none;
   padding: 0;
-  margin: 20px 0;
+  margin: 0;
 }
+
 .sidebar-nav li a {
   display: block;
   padding: 15px 25px;
   color: #ecf0f1;
   text-decoration: none;
-  transition: background-color 0.2s;
-  border-left: 3px solid transparent;
+  transition: background-color 0.2s, border-left-color 0.2s;
+  border-left: 4px solid transparent; /* Borde para el enlace activo */
+  font-weight: 500;
 }
+
 .sidebar-nav li a:hover {
-  background-color: #34495e;
+  background-color: #34495e; /* Efecto hover sutil */
 }
+
+/* Estilo para el enlace de la página activa */
 .sidebar-nav li a.active {
-  background-color: #212f3d;
-  border-left: 3px solid #c52127; /* Rojo IPD */
+  background-color: #1a252f; /* Fondo más oscuro para el activo */
+  border-left-color: #c52127; /* Acento rojo del IPD */
   font-weight: bold;
+  color: white;
+}
+
+/* Pie de página de la barra lateral */
+.sidebar-footer {
+  padding: 0 1.5rem 1.5rem;
+}
+
+/* Botón de cerrar sesión */
+.logout-button-sidebar {
+  width: 100%;
+  background-color: #c52127; /* Rojo IPD */
+  color: white;
+  border: none;
+  padding: 0.8rem;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background-color 0.2s ease;
+}
+
+.logout-button-sidebar:hover {
+  background-color: #a91a20; /* Rojo más oscuro para el efecto hover */
 }

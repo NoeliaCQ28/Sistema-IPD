@@ -1,0 +1,123 @@
+/*
+  src/pages/admin/views/EventosView.css
+  Estilos mejorados para la vista de gestión de eventos.
+*/
+
+.admin-view-container {
+    padding: 1.5rem;
+}
+
+.view-header {
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.view-header h1 {
+    margin: 0;
+    font-size: 2rem;
+}
+
+.view-header p {
+    margin-top: 0.25rem;
+    color: #718096;
+}
+
+/* Grid para las tarjetas de eventos */
+.eventos-card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    gap: 1.5rem;
+}
+
+/* Estilo para cada tarjeta */
+.evento-card {
+    background-color: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+    display: flex;
+    flex-direction: column;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    border: 1px solid #e2e8f0;
+}
+
+.evento-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+}
+
+.evento-card-header {
+    padding: 1.25rem;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.evento-card-header h3 {
+    margin: 0;
+    font-size: 1.2rem;
+    color: #2c3e50;
+}
+
+.evento-disciplina {
+    display: inline-block;
+    margin-top: 0.5rem;
+    font-size: 0.8rem;
+    font-weight: bold;
+    color: #718096;
+    background-color: #f1f4f8;
+    padding: 0.25rem 0.75rem;
+    border-radius: 12px;
+    text-transform: uppercase;
+}
+
+.evento-card-body {
+    padding: 1.25rem;
+    flex-grow: 1;
+    color: #4a5568;
+    font-size: 0.95rem;
+}
+
+.evento-card-body p {
+    margin: 0 0 0.75rem 0;
+}
+
+.evento-card-footer {
+    padding: 1rem 1.25rem;
+    background-color: #f8f9fa;
+    border-top: 1px solid #e2e8f0;
+    display: flex;
+    justify-content: flex-end; /* Alinea los botones a la derecha */
+    gap: 0.75rem;
+}
+
+.evento-card-footer button {
+    border: none;
+    padding: 0.6rem 1.2rem;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: opacity 0.2s;
+}
+
+.evento-card-footer button:hover {
+    opacity: 0.8;
+}
+
+.btn-edit {
+  background-color: #ffc107;
+  color: #212529;
+}
+
+.btn-delete {
+  background-color: #dc3545;
+  color: white;
+}
+
+.error-message {
+    color: #c0392b;
+    background-color: #fdd;
+    border: 1px solid #c0392b;
+    padding: 10px;
+    border-radius: 4px;
+    margin-top: 20px;
+    text-align: center;
+}
