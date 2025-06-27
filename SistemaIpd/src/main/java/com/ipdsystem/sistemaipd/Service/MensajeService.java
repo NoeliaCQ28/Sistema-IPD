@@ -8,16 +8,16 @@ import com.ipdsystem.sistemaipd.Entity.Mensaje;
 import com.ipdsystem.sistemaipd.Repository.DeportistaRepository;
 import com.ipdsystem.sistemaipd.Repository.EntrenadorRepository;
 import com.ipdsystem.sistemaipd.Repository.MensajeRepository;
-import com.ipdsystem.sistemaipd.Repository.UnreadMessageCountBySender; // <-- IMPORTACIÓN NUEVA
+import com.ipdsystem.sistemaipd.Repository.UnreadMessageCountBySender;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-import java.util.Map; // <-- IMPORTACIÓN NUEVA
-import java.util.stream.Collectors;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 public class MensajeService {
@@ -40,14 +40,14 @@ public class MensajeService {
         mensaje.setLeido(false);
 
         Mensaje savedMensaje = mensajeRepository.save(mensaje);
-        return mapMensajeToResponseDTO(savedMensaje);
+        return mapToResponseDTO(savedMensaje);
     }
 
     @Transactional(readOnly = true)
     public List<MensajeResponseDTO> getConversation(Long user1Id, String user1Rol, Long user2Id, String user2Rol) {
         List<Mensaje> mensajes = mensajeRepository.findConversation(user1Id, user1Rol, user2Id, user2Rol);
         return mensajes.stream()
-                .map(this::mapMensajeToResponseDTO)
+                .map(this::mapToResponseDTO)
                 .collect(Collectors.toCollection(ArrayList::new));
     }
 
@@ -57,15 +57,25 @@ public class MensajeService {
                 .orElseThrow(() -> new EntityNotFoundException("Mensaje no encontrado con ID: " + mensajeId));
         mensaje.setLeido(true);
         Mensaje updatedMensaje = mensajeRepository.save(mensaje);
-        return mapMensajeToResponseDTO(updatedMensaje);
+        return mapToResponseDTO(updatedMensaje);
     }
 
     @Transactional(readOnly = true)
-    public long countUnreadMessages(Long userId, String userRol) {
+    public long countUnreadMessagesForUser(Long userId, String userRol) {
         return mensajeRepository.countUnreadMessagesForUser(userId, userRol);
     }
 
-    private MensajeResponseDTO mapMensajeToResponseDTO(Mensaje mensaje) {
+    @Transactional(readOnly = true)
+    public Map<Long, Long> getUnreadMessageCountBySender(Long userId, String userRol) {
+        List<UnreadMessageCountBySender> counts = mensajeRepository.countUnreadMessagesBySender(userId, userRol);
+        return counts.stream()
+                .collect(Collectors.toMap(
+                        UnreadMessageCountBySender::getRemitenteId,
+                        UnreadMessageCountBySender::getCount
+                ));
+    }
+
+    private MensajeResponseDTO mapToResponseDTO(Mensaje mensaje) {
         MensajeResponseDTO dto = new MensajeResponseDTO();
         dto.setId(mensaje.getId());
         dto.setContenido(mensaje.getContenido());
@@ -76,45 +86,22 @@ public class MensajeService {
         dto.setReceptorId(mensaje.getReceptorId());
         dto.setReceptorRol(mensaje.getReceptorRol());
 
-        // Resolver nombre del remitente
         if ("DEPORTISTA".equals(mensaje.getRemitenteRol())) {
             deportistaRepository.findById(mensaje.getRemitenteId())
                     .ifPresent(d -> dto.setRemitenteNombre(d.getNombres() + " " + d.getApellidos()));
         } else if ("ENTRENADOR".equals(mensaje.getRemitenteRol())) {
             entrenadorRepository.findById(mensaje.getRemitenteId())
                     .ifPresent(e -> dto.setRemitenteNombre(e.getNombres() + " " + e.getApellidos()));
-        } else {
-            dto.setRemitenteNombre(mensaje.getRemitenteRol());
         }
 
-        // Resolver nombre del receptor
         if ("DEPORTISTA".equals(mensaje.getReceptorRol())) {
             deportistaRepository.findById(mensaje.getReceptorId())
                     .ifPresent(d -> dto.setReceptorNombre(d.getNombres() + " " + d.getApellidos()));
         } else if ("ENTRENADOR".equals(mensaje.getReceptorRol())) {
             entrenadorRepository.findById(mensaje.getReceptorId())
                     .ifPresent(e -> dto.setReceptorNombre(e.getNombres() + " " + e.getApellidos()));
-        } else {
-            dto.setReceptorNombre(mensaje.getReceptorRol());
         }
 
         return dto;
-    }
-
-    // --- NUEVO MÉTODO AÑADIDO ---
-    /**
-     * Obtiene el conteo de mensajes no leídos por cada remitente.
-     * @param userId ID del usuario receptor.
-     * @param userRol Rol del usuario receptor.
-     * @return Un mapa donde la clave es el ID del remitente y el valor es el número de mensajes no leídos.
-     */
-    @Transactional(readOnly = true)
-    public Map<Long, Long> getUnreadMessageCountBySender(Long userId, String userRol) {
-        List<UnreadMessageCountBySender> counts = mensajeRepository.countUnreadMessagesBySender(userId, userRol);
-        return counts.stream()
-                .collect(Collectors.toMap(
-                        UnreadMessageCountBySender::getRemitenteId,
-                        UnreadMessageCountBySender::getCount
-                ));
     }
 }

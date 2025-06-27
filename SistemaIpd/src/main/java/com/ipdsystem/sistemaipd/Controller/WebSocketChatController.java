@@ -2,23 +2,21 @@ package com.ipdsystem.sistemaipd.Controller;
 
 import com.ipdsystem.sistemaipd.Dto.MensajeRequestDTO;
 import com.ipdsystem.sistemaipd.Dto.MensajeResponseDTO;
-import com.ipdsystem.sistemaipd.Entity.Deportista; // <<<--- ¡AÑADIR ESTA IMPORTACIÓN!
-import com.ipdsystem.sistemaipd.Entity.Entrenador; // <<<--- ¡AÑADIR ESTA IMPORTACIÓN!
 import com.ipdsystem.sistemaipd.Service.MensajeService;
-import jakarta.persistence.EntityNotFoundException; // <<<--- ¡AÑADIR ESTA IMPORTACIÓN!
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.handler.annotation.MessageMapping;
-import org.springframework.messaging.handler.annotation.Payload; // <<<--- ¡AÑADIR ESTA IMPORTACIÓN! (para @RequestBody si es necesario, aunque @MessageMapping es más común con @Payload)
+import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
-import org.springframework.security.core.annotation.AuthenticationPrincipal; // <<<--- ¡AÑADIR ESTA IMPORTACIÓN!
-import org.springframework.security.core.userdetails.UserDetails; // <<<--- ¡AÑADIR ESTA IMPORTACIÓN!
 import org.springframework.stereotype.Controller;
-// No necesitas @RequestBody aquí para @MessageMapping, se usa @Payload para el cuerpo del mensaje STOMP
-// import org.springframework.web.bind.annotation.RequestBody;
 
+import java.security.Principal;
 
-@Controller // Usar @Controller para controladores de WebSocket
+@Controller
 public class WebSocketChatController {
+
+    private static final Logger logger = LoggerFactory.getLogger(WebSocketChatController.class);
 
     @Autowired
     private SimpMessagingTemplate messagingTemplate;
@@ -26,66 +24,40 @@ public class WebSocketChatController {
     @Autowired
     private MensajeService mensajeService;
 
-    // @MessageMapping maneja los mensajes que llegan con el prefijo /app
-    // Por ejemplo, un mensaje enviado a /app/chat.sendMessage
     @MessageMapping("/chat.sendMessage")
-    public void sendMessage(@Payload MensajeRequestDTO messageRequest, @AuthenticationPrincipal UserDetails currentUser) {
-        // Validar que el remitente del mensaje coincide con el usuario autenticado
-        Long authUserId = null;
-        String authUserRol = null;
+    public void sendMessage(@Payload MensajeRequestDTO chatMessage, Principal principal) {
 
-        if (currentUser instanceof Deportista) {
-            authUserId = ((Deportista) currentUser).getId();
-            authUserRol = "DEPORTISTA";
-        } else if (currentUser instanceof Entrenador) {
-            authUserId = ((Entrenador) currentUser).getId();
-            authUserRol = "ENTRENADOR";
-        }
-        // Si el usuario autenticado no es ni Deportista ni Entrenador, o ID/Rol no coinciden
-        if (authUserId == null || !authUserId.equals(messageRequest.getRemitenteId()) || !authUserRol.equals(messageRequest.getRemitenteRol())) {
-            System.err.println("Intento de envío de mensaje no autorizado por usuario: " + currentUser.getUsername() +
-                    " (Remitente ID en request: " + messageRequest.getRemitenteId() + ", Rol: " + messageRequest.getRemitenteRol() + ")");
+        if (principal == null) {
+            logger.error("Intento de envío de mensaje por un usuario no autenticado.");
             return;
         }
 
-        try {
-            MensajeResponseDTO savedMessage = mensajeService.enviarMensaje(messageRequest);
+        logger.info("Recibido mensaje de {}: '{}'", chatMessage.getRemitenteId(), chatMessage.getContenido());
 
-            // Enviar el mensaje al remitente (para que vea su mensaje en el chat)
+        try {
+            // 1. Guardar mensaje y obtener la respuesta completa
+            MensajeResponseDTO savedMessage = mensajeService.enviarMensaje(chatMessage);
+            logger.info("Mensaje guardado con ID: {}. Preparando para enviar a los clientes.", savedMessage.getId());
+
+            // 2. Enviar el mensaje de vuelta al remitente
             messagingTemplate.convertAndSendToUser(
-                    String.valueOf(savedMessage.getRemitenteId()), // ID del usuario remitente
-                    "/queue/messages", // Prefijo para mensajes privados a un usuario
+                    savedMessage.getRemitenteId().toString(),
+                    "/queue/messages",
                     savedMessage
             );
+            logger.info("Enviado mensaje a la cola del remitente: {}", savedMessage.getRemitenteId());
 
-            // Enviar el mensaje al receptor
+            // 3. Enviar el mensaje al receptor
             messagingTemplate.convertAndSendToUser(
-                    String.valueOf(savedMessage.getReceptorId()), // ID del usuario receptor
-                    "/queue/messages", // Prefijo para mensajes privados a un usuario
+                    savedMessage.getReceptorId().toString(),
+                    "/queue/messages",
                     savedMessage
             );
-
-            // Considera enviar una señal al receptor para actualizar el conteo de no leídos
-            // Esto podría ser a otro tópico, ej: /topic/unread-count/{receptorId}
+            logger.info("Enviado mensaje a la cola del receptor: {}", savedMessage.getReceptorId());
 
         } catch (Exception e) {
-            System.err.println("Error al procesar mensaje WebSocket: " + e.getMessage());
-            e.printStackTrace(); // Mantener para depuración, pero usar logger en producción
-        }
-    }
-
-    @MessageMapping("/chat.markAsRead")
-    public void markAsRead(@Payload Long messageId, @AuthenticationPrincipal UserDetails currentUser) {
-        try {
-            // Opcional: Validar que el mensaje es realmente para el usuario actual antes de marcarlo como leído
-            // Podrías obtener el mensaje, verificar su receptorId y receptorRol.
-            MensajeResponseDTO updatedMessage = mensajeService.marcarComoLeido(messageId);
-            System.out.println("Mensaje " + messageId + " marcado como leído por " + currentUser.getUsername());
-        } catch (EntityNotFoundException e) {
-            System.err.println("Mensaje no encontrado para marcar como leído: " + messageId);
-        } catch (Exception e) {
-            System.err.println("Error al marcar mensaje como leído via WebSocket: " + e.getMessage());
-            e.printStackTrace();
+            // Este log es crucial para ver cualquier error que ocurra durante el proceso
+            logger.error("Error al procesar o enviar mensaje WebSocket", e);
         }
     }
 }

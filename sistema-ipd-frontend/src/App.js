@@ -34,10 +34,13 @@ import HorariosView from './pages/entrenador/views/HorariosView';
 import ProfileView from './pages/entrenador/views/ProfileView';
 import AnalisisProgresoView from './pages/entrenador/views/AnalisisProgresoView';
 
-// --- NUEVAS IMPORTACIONES PARA LA SECCIÓN DE ASISTENCIA REESTRUCTURADA ---
+// --- Importaciones para la sección de Asistencia Reestructurada ---
 import AsistenciaLayout from './pages/entrenador/views/asistencia/AsistenciaLayout';
 import TomarAsistenciaView from './pages/entrenador/views/asistencia/TomarAsistenciaView';
 import ReporteAsistenciaView from './pages/entrenador/views/asistencia/ReporteAsistenciaView';
+
+// --- Importaciones para la sección de Mensajería ---
+import MensajeriaView from './pages/entrenador/views/mensajeria/MensajeriaView';
 
 
 function App() {
@@ -83,13 +86,13 @@ function App() {
               <Route path="progreso" element={<ProgresoView />} />
               <Route path="horarios" element={<HorariosView />} />
               
-              {/* --- NUEVA ESTRUCTURA DE RUTAS PARA ASISTENCIA --- */}
               <Route path="asistencia" element={<AsistenciaLayout />}>
                 <Route index element={<Navigate to="tomar" replace />} />
                 <Route path="tomar" element={<TomarAsistenciaView />} />
                 <Route path="reporte" element={<ReporteAsistenciaView />} />
               </Route>
 
+              <Route path="mensajeria" element={<MensajeriaView />} />
               <Route path="perfil" element={<ProfileView />} />
               <Route path="analisis" element={<AnalisisProgresoView />} />
               

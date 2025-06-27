@@ -31,6 +31,11 @@ public class SecurityConfig {
                 .cors(Customizer.withDefaults())
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(authorize -> authorize
+                        // --- CAMBIO CLAVE ---
+                        // Permite la conexión inicial al WebSocket (handshake),
+                        // la autenticación real se hará en WebSocketAuthInterceptor.
+                        .requestMatchers("/ws/**").permitAll()
+
                         // Rutas Generales y de Autenticación
                         .requestMatchers("/api/v1/auth/me", "/api/v1/profile/**").authenticated()
 
@@ -76,12 +81,11 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/v1/mensajes/no-leidos/por-remitente").hasAnyRole("DEPORTISTA", "ENTRENADOR")
                         .requestMatchers("/api/v1/mensajes/**").hasRole("ADMINISTRADOR")
 
-                        // Rutas de WebSocket
-                        .requestMatchers("/ws/**").authenticated()
-
                         // Rutas solo para Administradores
                         .requestMatchers("/api/v1/administradores/**").hasRole("ADMINISTRADOR")
-                        .anyRequest().hasRole("ADMINISTRADOR")
+
+                        // Cualquier otra solicitud debe estar autenticada
+                        .anyRequest().authenticated()
                 )
                 .httpBasic(Customizer.withDefaults());
 

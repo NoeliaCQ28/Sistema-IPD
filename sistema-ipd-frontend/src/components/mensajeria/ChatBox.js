@@ -1,130 +1,138 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../../context/AuthContext';
+import { Client } from '@stomp/stompjs';
+import SockJS from 'sockjs-client';
 import './ChatBox.css';
 
-const ChatBox = ({ currentUserId, currentUserRol, otherUserId, otherUserRol, otherUserName }) => {
-    const { authHeader, user } = useAuth();
+const ChatBox = ({ otroUsuario, rolOtroUsuario }) => {
+    const { user, authHeader } = useAuth();
     const [messages, setMessages] = useState([]);
     const [newMessage, setNewMessage] = useState('');
-    const [isLoading, setIsLoading] = useState(true);
-    const [error, setError] = useState(null);
+    const [isConnected, setIsConnected] = useState(false);
+    const stompClientRef = useRef(null);
     const messagesEndRef = useRef(null);
 
-    const fetchConversation = async () => {
-        if (!authHeader || !currentUserId || !currentUserRol || !otherUserId || !otherUserRol) {
-            setIsLoading(false);
+    const scrollToBottom = () => {
+        messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    };
+
+    useEffect(() => {
+        // No hacer nada si falta información esencial.
+        if (!otroUsuario || !user || !authHeader) {
             return;
         }
-        setIsLoading(true);
-        setError(null);
-        try {
-            const response = await fetch(`http://localhost:8081/api/v1/mensajes/conversacion/${otherUserId}/${otherUserRol}`, {
-                method: 'GET',
-                headers: { 'Authorization': authHeader }
-            });
-            if (!response.ok) {
-                const errorText = await response.text();
-                throw new Error(errorText || `Error ${response.status}: al cargar conversación.`);
-            }
-            const data = await response.json();
-            setMessages(data);
 
-            const unreadMessagesFromOtherUser = data.filter(msg => msg.remitenteId === otherUserId && !msg.leido);
-            for (const msg of unreadMessagesFromOtherUser) {
-                await fetch(`http://localhost:8081/api/v1/mensajes/${msg.id}/leido`, {
-                    method: 'PUT',
+        // Cargar el historial de la conversación al seleccionar un contacto.
+        const fetchMessages = async () => {
+            try {
+                const response = await fetch(`http://localhost:8081/api/v1/mensajes/conversacion/${otroUsuario.id}/${rolOtroUsuario}`, {
                     headers: { 'Authorization': authHeader }
                 });
+                if (response.ok) {
+                    const data = await response.json();
+                    setMessages(data);
+                }
+            } catch (error) {
+                console.error("Error al cargar el historial de mensajes:", error);
             }
-        } catch (err) {
-            setError(`Error al cargar mensajes: ${err.message}`);
-            console.error("Error al cargar conversación:", err);
-        } finally {
-            setIsLoading(false);
-        }
-    };
-
-    const sendMessage = async (e) => {
-        e.preventDefault();
-        if (!newMessage.trim() || isLoading) return;
-
-        setIsLoading(true);
-        setError(null);
-
-        const messageData = {
-            remitenteId: currentUserId,
-            remitenteRol: currentUserRol,
-            receptorId: otherUserId,
-            receptorRol: otherUserRol,
-            contenido: newMessage
         };
 
-        try {
-            const response = await fetch('http://localhost:8081/api/v1/mensajes/enviar', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json', 'Authorization': authHeader },
-                body: JSON.stringify(messageData)
+        fetchMessages();
+
+        // Crear una nueva instancia del cliente STOMP.
+        const client = new Client({
+            webSocketFactory: () => new SockJS('http://localhost:8081/ws'),
+            connectHeaders: { Authorization: authHeader },
+            reconnectDelay: 10000,
+            onConnect: () => {
+                setIsConnected(true);
+                console.log('CONEXIÓN STOMP EXITOSA. Suscribiendo al canal personal...');
+                
+                // Suscribirse al canal privado para recibir mensajes dirigidos a este usuario.
+                client.subscribe(`/user/${user.id}/queue/messages`, (message) => {
+                    const receivedMessage = JSON.parse(message.body);
+                    
+                    // --- PUNTO CLAVE ---
+                    // Esta es la forma correcta de actualizar el estado para asegurar que la UI se renderice.
+                    // Se usa una función de callback para obtener el estado previo (`prev`) y evitar problemas de "estado rancio".
+                    setMessages(prev => [...prev, receivedMessage]);
+                });
+            },
+            onDisconnect: () => {
+                setIsConnected(false);
+                console.log('DESCONECTADO del WebSocket.');
+            },
+        });
+
+        stompClientRef.current = client;
+        client.activate();
+
+        // Función de limpieza: se ejecuta al cambiar de chat o al salir de la página.
+        return () => {
+            if (stompClientRef.current) {
+                stompClientRef.current.deactivate();
+            }
+        };
+    // --- DEPENDENCIA CLAVE CORREGIDA ---
+    // El efecto solo se volverá a ejecutar si el ID del contacto cambia,
+    // evitando el bucle de renderizado y manteniendo la conexión estable.
+    }, [otroUsuario?.id, user?.id, authHeader, rolOtroUsuario]); 
+
+    // Efecto para hacer scroll al final cada vez que se añada un mensaje.
+    useEffect(scrollToBottom, [messages]);
+
+    const handleSendMessage = () => {
+        // Comprobar que el mensaje no esté vacío y que la conexión esté activa.
+        if (newMessage.trim() && isConnected && stompClientRef.current?.active) {
+            const chatMessage = {
+                remitenteId: user.id,
+                remitenteRol: user.rol,
+                receptorId: otroUsuario.id,
+                receptorRol: rolOtroUsuario,
+                contenido: newMessage,
+            };
+            
+            stompClientRef.current.publish({
+                destination: '/app/chat.sendMessage',
+                body: JSON.stringify(chatMessage),
             });
 
-            if (!response.ok) {
-                const errorText = await response.text();
-                throw new Error(errorText || `Error ${response.status}: al enviar mensaje.`);
-            }
-
-            const sentMessage = await response.json();
-            setMessages(prevMessages => [...prevMessages, sentMessage]);
             setNewMessage('');
-        } catch (err) {
-            setError(`Error al enviar mensaje: ${err.message}`);
-            console.error("Error al enviar mensaje:", err);
-        } finally {
-            setIsLoading(false);
         }
     };
-
-    useEffect(() => {
-        fetchConversation();
-    }, [currentUserId, currentUserRol, otherUserId, otherUserRol, authHeader]);
-
-    useEffect(() => {
-        messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-    }, [messages]);
-
-
-    if (isLoading) return <p>Cargando mensajes con {otherUserName}...</p>;
-    if (error) return <p className="error-message">{error}</p>;
+    
+    if (!otroUsuario) {
+        return <div className="chat-placeholder">Selecciona un chat para comenzar.</div>;
+    }
 
     return (
-        <div className="chat-box-container info-card">
-            <h4>Conversación con {otherUserName}</h4>
-            <div className="messages-list">
-                {messages.length > 0 ? (
-                    messages.map((msg) => (
-                        <div key={msg.id} className={`message-item ${msg.remitenteId === currentUserId ? 'sent' : 'received'}`}>
-                            <div className="message-header">
-                                <strong>{msg.remitenteId === currentUserId ? 'Tú' : msg.remitenteNombre}</strong>
-                                <span className="message-time">{new Date(msg.fechaEnvio).toLocaleString('es-ES', { hour: '2-digit', minute: '2-digit', day: 'numeric', month: 'short' })}</span>
-                            </div>
-                            <p className="message-content">{msg.contenido}</p>
+        <div className="chat-box">
+            <div className="chat-header">
+                <h3>{otroUsuario.nombres} {otroUsuario.apellidos}</h3>
+                <span>{rolOtroUsuario.charAt(0).toUpperCase() + rolOtroUsuario.slice(1).toLowerCase()}</span>
+            </div>
+            <div className="chat-messages">
+                {messages.map((msg) => (
+                    <div key={msg.id} className={`message ${msg.remitenteId === user.id ? 'sent' : 'received'}`}>
+                        <div className="message-content">{msg.contenido}</div>
+                        <div className="message-timestamp">
+                            {new Date(msg.fechaEnvio).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                         </div>
-                    ))
-                ) : (
-                    <p>No hay mensajes en esta conversación.</p>
-                )}
+                    </div>
+                ))}
                 <div ref={messagesEndRef} />
             </div>
-            <form onSubmit={sendMessage} className="message-input-form">
-                <textarea
+            <div className="chat-input-area">
+                <input
+                    type="text"
                     value={newMessage}
                     onChange={(e) => setNewMessage(e.target.value)}
-                    placeholder="Escribe tu mensaje..."
-                    rows="3"
-                    disabled={isLoading}
-                ></textarea>
-                <button type="submit" disabled={isLoading}>
-                    {isLoading ? 'Enviando...' : 'Enviar'}
-                </button>
-            </form>
+                    onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
+                    placeholder="Escribe un mensaje..."
+                    disabled={!isConnected}
+                />
+                <button onClick={handleSendMessage} disabled={!isConnected}>Enviar</button>
+            </div>
         </div>
     );
 };

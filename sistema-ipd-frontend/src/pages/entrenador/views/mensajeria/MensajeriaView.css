@@ -1,0 +1,36 @@
+/* Contenedor principal de la vista de mensajería */
+.mensajeria-layout {
+    display: flex;
+    height: calc(100vh - 150px); /* Ajusta la altura según tu layout */
+    background-color: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    overflow: hidden; /* Evita que los hijos se desborden */
+}
+
+.contactos-sidebar {
+    flex: 0 0 300px; /* Ancho fijo de 300px, no crece ni se encoge */
+    border-right: 1px solid #e0e0e0;
+    overflow-y: auto;
+    background-color: #f8f9fa;
+}
+
+.chat-area {
+    flex-grow: 1; /* Ocupa el resto del espacio */
+    display: flex;
+    flex-direction: column;
+}
+
+.chat-placeholder {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    color: #a0aec0;
+    text-align: center;
+}
+
+.chat-placeholder h2 {
+    color: #4a5568;
+}

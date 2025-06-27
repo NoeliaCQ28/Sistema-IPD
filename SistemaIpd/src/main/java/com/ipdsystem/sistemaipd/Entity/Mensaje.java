@@ -1,22 +1,10 @@
 package com.ipdsystem.sistemaipd.Entity;
 
-import com.fasterxml.jackson.annotation.JsonIdentityInfo;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import jakarta.persistence.*;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.AllArgsConstructor;
-
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "mensajes")
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
-@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
-@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 public class Mensaje {
 
     @Id
@@ -32,20 +20,38 @@ public class Mensaje {
     @Column(nullable = false)
     private boolean leido = false;
 
-    // Campos para identificar al remitente (ID y Rol)
     @Column(nullable = false)
     private Long remitenteId;
-    @Column(nullable = false, length = 50)
-    private String remitenteRol; // Ej: "DEPORTISTA", "ENTRENADOR", "ADMINISTRADOR"
 
-    // Campos para identificar al receptor (ID y Rol)
+    @Column(nullable = false, length = 50)
+    private String remitenteRol;
+
     @Column(nullable = false)
     private Long receptorId;
+
     @Column(nullable = false, length = 50)
-    private String receptorRol; // Ej: "DEPORTISTA", "ENTRENADOR", "ADMINISTRADOR"
+    private String receptorRol;
 
     @PrePersist
     protected void onCreate() {
         fechaEnvio = LocalDateTime.now();
     }
+
+    // --- Getters y Setters ---
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
+    public String getContenido() { return contenido; }
+    public void setContenido(String contenido) { this.contenido = contenido; }
+    public LocalDateTime getFechaEnvio() { return fechaEnvio; }
+    public void setFechaEnvio(LocalDateTime fechaEnvio) { this.fechaEnvio = fechaEnvio; }
+    public boolean isLeido() { return leido; }
+    public void setLeido(boolean leido) { this.leido = leido; }
+    public Long getRemitenteId() { return remitenteId; }
+    public void setRemitenteId(Long remitenteId) { this.remitenteId = remitenteId; }
+    public String getRemitenteRol() { return remitenteRol; }
+    public void setRemitenteRol(String remitenteRol) { this.remitenteRol = remitenteRol; }
+    public Long getReceptorId() { return receptorId; }
+    public void setReceptorId(Long receptorId) { this.receptorId = receptorId; }
+    public String getReceptorRol() { return receptorRol; }
+    public void setReceptorRol(String receptorRol) { this.receptorRol = receptorRol; }
 }

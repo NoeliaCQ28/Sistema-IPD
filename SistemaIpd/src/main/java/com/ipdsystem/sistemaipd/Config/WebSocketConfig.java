@@ -1,32 +1,45 @@
 package com.ipdsystem.sistemaipd.Config;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.messaging.simp.config.ChannelRegistration;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;
 import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBroker;
 import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
 import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerConfigurer;
 
 @Configuration
-@EnableWebSocketMessageBroker // Habilita el manejo de mensajes WebSocket con un broker de mensajes STOMP.
+@EnableWebSocketMessageBroker
 public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
+
+    // Inyectamos nuestro interceptor de seguridad personalizado.
+    @Autowired
+    private WebSocketAuthInterceptor webSocketAuthInterceptor;
 
     @Override
     public void configureMessageBroker(MessageBrokerRegistry config) {
-        // Habilita un broker de mensajes simple, que maneja mensajes basados en prefijos.
-        // Los clientes se suscribirán a destinos con el prefijo "/topic" para recibir mensajes.
-        config.enableSimpleBroker("/topic");
-        // Establece el prefijo para destinos dirigidos a métodos manejadores de mensajes.
-        // Por ejemplo, los mensajes enviados a "/app/chat" serán ruteados al método @MessageMapping.
+        // Habilita un broker de mensajes en memoria para los destinos que comiencen con /topic y /queue.
+        config.enableSimpleBroker("/topic", "/queue");
+        // Define el prefijo para los mensajes que se dirigirán a los métodos @MessageMapping en los controladores.
         config.setApplicationDestinationPrefixes("/app");
+        // Define el prefijo para los destinos de usuario único.
+        config.setUserDestinationPrefix("/user");
     }
 
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
-        // Registra un endpoint WebSocket al que los clientes se conectarán.
-        // La URL de conexión será ws://localhost:8081/ws
-        // .withSockJS() habilita SockJS para clientes que no soportan WebSockets nativos (fallback).
+        // Registra el endpoint /ws que los clientes usarán para conectarse.
+        // setAllowedOriginPatterns("*") permite conexiones desde cualquier origen (ideal para desarrollo).
         registry.addEndpoint("/ws")
-                .setAllowedOriginPatterns("http://localhost:3000") // Permitir conexiones desde tu frontend React
+                .setAllowedOriginPatterns("*")
                 .withSockJS();
+    }
+
+    // --- PUNTO CLAVE ---
+    // Este método registra nuestro interceptor para que se ejecute en los mensajes entrantes.
+    // Sin esto, la seguridad del WebSocket no funcionará.
+    @Override
+    public void configureClientInboundChannel(ChannelRegistration registration) {
+        registration.interceptors(webSocketAuthInterceptor);
     }
 }
