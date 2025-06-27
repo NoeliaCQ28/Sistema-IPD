@@ -18,14 +18,11 @@ import TorneoPortal from './pages/torneos/TorneoPortal';
 import TorneoForm from './pages/torneos/TorneoForm';
 import TorneoDetalle from './pages/torneos/TorneoDetalle';
 
-// Páginas de Roles
-import DeportistaHomePage from './pages/deportista/DeportistaHomePage';
-
-// Componentes adicionales
+// Componentes adicionales que se reutilizan
 import ProgresoHistorial from './components/progreso/ProgresoHistorial';
 import AsistenciaHistorial from './components/asistencia/AsistenciaHistorial';
 
-// --- IMPORTACIONES PARA EL PANEL DE ENTRENADOR ---
+// --- PÁGINAS DEL PANEL DE ENTRENADOR ---
 import EntrenadorLayout from './pages/entrenador/EntrenadorLayout';
 import DashboardView from './pages/entrenador/views/DashboardView';
 import DeportistasView from './pages/entrenador/views/DeportistasView';
@@ -33,15 +30,17 @@ import ProgresoView from './pages/entrenador/views/ProgresoView';
 import HorariosView from './pages/entrenador/views/HorariosView';
 import ProfileView from './pages/entrenador/views/ProfileView';
 import AnalisisProgresoView from './pages/entrenador/views/AnalisisProgresoView';
-
-// --- Importaciones para la sección de Asistencia Reestructurada ---
 import AsistenciaLayout from './pages/entrenador/views/asistencia/AsistenciaLayout';
 import TomarAsistenciaView from './pages/entrenador/views/asistencia/TomarAsistenciaView';
 import ReporteAsistenciaView from './pages/entrenador/views/asistencia/ReporteAsistenciaView';
-
-// --- Importaciones para la sección de Mensajería ---
 import MensajeriaView from './pages/entrenador/views/mensajeria/MensajeriaView';
 
+// --- PÁGINAS DEL NUEVO PANEL DE DEPORTISTA ---
+import DeportistaLayout from './pages/deportista/DeportistaLayout';
+import DeportistaDashboardView from './pages/deportista/DeportistaDashboardView';
+import DeportistaPerfilView from './pages/deportista/views/DeportistaPerfilView';
+import DeportistaHorariosView from './pages/deportista/views/DeportistaHorariosView';
+import DeportistaMensajeriaView from './pages/deportista/views/DeportistaMensajeriaView';
 
 function App() {
   return (
@@ -59,7 +58,7 @@ function App() {
                 <Route path="deportistas/nuevo" element={<DeportistaForm />} />
                 <Route path="deportistas/editar/:id" element={<DeportistaForm />} />
                 <Route path="deportistas/ver/:id" element={<DeportistaDetalle />} />
-                <Route path="deportistas/ver/:deportistaId/progresos" element={<ProgresoHistorial />} /> 
+                <Route path="deportistas/ver/:deportistaId/progresos" element={<ProgresoHistorial />} />
                 <Route path="deportistas/ver/:deportistaId/asistencias" element={<AsistenciaHistorial />} />
                 <Route path="entrenadores" element={<EntrenadorPortal />} />
                 <Route path="entrenadores/nuevo" element={<EntrenadorForm />} />
@@ -72,12 +71,7 @@ function App() {
             </Route>
           </Route>
 
-          {/* RUTAS DE DEPORTISTA */}
-          <Route element={<ProtectedRoute role="DEPORTISTA" />}>
-            <Route path="/portal/deportista" element={<DeportistaHomePage />} />
-          </Route>
-
-          {/* RUTAS DE ENTRENADOR CON EL NUEVO LAYOUT */}
+          {/* RUTAS DE ENTRENADOR */}
           <Route element={<ProtectedRoute role="ENTRENADOR" />}>
             <Route path="/portal/entrenador" element={<EntrenadorLayout />}>
               <Route index element={<Navigate to="dashboard" replace />} />
@@ -85,23 +79,33 @@ function App() {
               <Route path="mis-deportistas" element={<DeportistasView />} />
               <Route path="progreso" element={<ProgresoView />} />
               <Route path="horarios" element={<HorariosView />} />
-              
               <Route path="asistencia" element={<AsistenciaLayout />}>
                 <Route index element={<Navigate to="tomar" replace />} />
                 <Route path="tomar" element={<TomarAsistenciaView />} />
                 <Route path="reporte" element={<ReporteAsistenciaView />} />
               </Route>
-
               <Route path="mensajeria" element={<MensajeriaView />} />
               <Route path="perfil" element={<ProfileView />} />
               <Route path="analisis" element={<AnalisisProgresoView />} />
-              
-              <Route path="deportistas/ver/:id" element={<DeportistaDetalle />} /> 
+              <Route path="deportistas/ver/:id" element={<DeportistaDetalle />} />
               <Route path="deportistas/ver/:deportistaId/progresos" element={<ProgresoHistorial />} />
               <Route path="deportistas/ver/:deportistaId/asistencias" element={<AsistenciaHistorial />} />
             </Route>
           </Route>
+
+          {/* RUTAS DEL PORTAL DE DEPORTISTA */}
+          <Route element={<ProtectedRoute role="DEPORTISTA" />}>
+            <Route path="/portal/deportista" element={<DeportistaLayout />}>
+              <Route index element={<Navigate to="dashboard" replace />} />
+              <Route path="dashboard" element={<DeportistaDashboardView />} />
+              <Route path="perfil" element={<DeportistaPerfilView />} />
+              <Route path="horarios" element={<DeportistaHorariosView />} />
+              <Route path="progresos" element={<ProgresoHistorial />} />
+              <Route path="mensajeria" element={<DeportistaMensajeriaView />} />
+            </Route>
+          </Route>
           
+          {/* Rutas de fallback y redirección */}
           <Route path="/" element={<Navigate to="/login" replace />} />
           <Route path="*" element={<p>Página no encontrada: 404!</p>} />
         </Routes>
@@ -109,4 +113,5 @@ function App() {
     </AuthProvider>
   );
 }
+
 export default App;

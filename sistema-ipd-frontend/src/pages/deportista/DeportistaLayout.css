@@ -1,0 +1,11 @@
+.deportista-layout {
+    display: flex;
+    min-height: 100vh;
+    background-color: #f4f6f9; /* Un fondo suave y consistente */
+}
+
+.deportista-main-content {
+    flex-grow: 1;
+    padding: 2rem;
+    overflow-y: auto; /* Permite scroll si el contenido es muy largo */
+}

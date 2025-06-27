@@ -12,6 +12,9 @@ public class UserResponseDTO {
     private String apellidos;
     private String correo;
     private String rol;
-    private String disciplina; // <-- CAMPO NUEVO
+    private String disciplina;
     private List<String> authorities;
+
+    // Este campo contendrá los datos del entrenador
+    private EntrenadorInfoDTO entrenador;
 }

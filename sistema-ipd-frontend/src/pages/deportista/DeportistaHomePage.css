@@ -1,263 +1,251 @@
-/* deportista/DeportistaHomePage.css */
+:root {
+    --portal-bg: #f4f6f9;
+    --card-bg: #ffffff;
+    --text-primary: #1a202c;
+    --text-secondary: #718096;
+    --ipd-red-primary: #c52127;
+    --ipd-red-secondary: #e53e3e;
+    --border-color: #e2e8f0;
+    --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    --card-radius: 12px;
+}
 
 .deportista-portal {
-    display: flex;
-    flex-direction: column;
+    background-color: var(--portal-bg);
     min-height: 100vh;
-    background-color: #f0f2f5;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
+/* Header */
 .portal-header {
-    background-color: #c52127;
+    background: linear-gradient(135deg, var(--ipd-red-primary) 0%, var(--ipd-red-secondary) 100%);
     color: white;
-    padding: 20px 40px;
+    padding: 2rem 2.5rem;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
 }
 
-.portal-header h2 {
+.portal-header-text h1 {
     margin: 0;
-    font-size: 1.8rem;
+    font-size: 2rem;
+    font-weight: 700;
 }
 
-.logout-button {
+.portal-header-text p {
+    margin: 0;
+    font-size: 1rem;
+    opacity: 0.9;
+}
+
+.portal-logout-button {
     background-color: rgba(255, 255, 255, 0.2);
     color: white;
-    border: 1px solid rgba(255, 255, 255, 0.5);
-    padding: 10px 20px;
+    border: 1px solid white;
+    padding: 0.75rem 1.5rem;
     border-radius: 8px;
     cursor: pointer;
     font-size: 1rem;
-    transition: background-color 0.3s ease, border-color 0.3s ease;
+    font-weight: 600;
+    transition: background-color 0.2s ease;
 }
 
-.logout-button:hover {
+.portal-logout-button:hover {
     background-color: rgba(255, 255, 255, 0.3);
-    border-color: white;
 }
 
-.portal-body {
-    display: flex;
-    flex-grow: 1;
-    padding: 30px 40px;
-    gap: 30px;
-    flex-wrap: wrap;
+/* Main Layout */
+.portal-main-content {
+    display: grid;
+    grid-template-columns: 320px 1fr;
+    gap: 2rem;
+    padding: 2rem 2.5rem;
 }
 
-.profile-sidebar {
-    flex: 0 0 300px;
+.portal-sidebar {
     display: flex;
     flex-direction: column;
-    gap: 20px;
+    gap: 1.5rem;
 }
 
-.profile-card {
-    background-color: white;
-    border-radius: 12px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
-    padding: 25px;
+.portal-feed {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+/* Card Genérica */
+.portal-card {
+    background-color: var(--card-bg);
+    border-radius: var(--card-radius);
+    box-shadow: var(--shadow);
+    padding: 1.5rem;
+    border: 1px solid var(--border-color);
+}
+
+.portal-card h4 {
+    color: var(--ipd-red-primary);
+    font-size: 1.25rem;
+    margin-top: 0;
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 2px solid var(--border-color);
+}
+
+.full-width {
+    grid-column: 1 / -1;
+}
+
+/* Layout en pantallas pequeñas */
+@media (max-width: 1024px) {
+    .portal-main-content {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 640px) {
+    .portal-header {
+        flex-direction: column;
+        gap: 1rem;
+        padding: 1.5rem;
+        text-align: center;
+    }
+}
+
+/* Estilos para el Skeleton Loader */
+.skeleton-card {
+    background-color: #e2e8f0;
+    border-radius: var(--card-radius);
+    padding: 1.5rem;
+}
+
+.skeleton-line {
+    background-color: #cbd5e0;
+    height: 1em;
+    border-radius: 4px;
+    margin-bottom: 0.75rem;
+}
+
+.skeleton-avatar {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    margin: 0 auto 1rem;
+    background-color: #cbd5e0;
+}
+/* Estilos para ProfileCard.js */
+.profile-card-widget {
     text-align: center;
 }
-
 .profile-picture {
     width: 120px;
     height: 120px;
     border-radius: 50%;
     object-fit: cover;
-    margin-bottom: 15px;
-    border: 4px solid #c52127;
+    margin-bottom: 1rem;
+    border: 5px solid var(--card-bg);
+    box-shadow: 0 0 0 3px var(--ipd-red-primary);
 }
-
-.profile-card h3 {
-    color: #333;
-    font-size: 1.6rem;
-    margin-bottom: 8px;
+.profile-card-widget h3 {
+    color: var(--text-primary);
+    font-size: 1.5rem;
+    margin: 0;
 }
-
-.profile-card p {
-    color: #666;
-    font-size: 0.95rem;
-    margin-bottom: 5px;
+.profile-discipline {
+    color: var(--ipd-red-secondary);
+    font-weight: 600;
+    margin: 0.25rem 0 1rem;
 }
-
-.profile-card .dni {
-    font-weight: bold;
-    color: #444;
-}
-
-.info-card {
-    background-color: white;
-    border-radius: 12px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
-    padding: 25px;
-}
-
-.info-card h4 {
-    color: #c52127;
-    font-size: 1.3rem;
-    margin-top: 0;
-    margin-bottom: 20px;
-    border-bottom: 2px solid #eee;
-    padding-bottom: 10px;
-}
-
-.main-content {
-    flex: 1;
+.profile-details {
     display: flex;
     flex-direction: column;
-    gap: 20px;
-    min-width: 500px;
-}
-
-.schedule-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 15px;
-}
-
-.schedule-table thead tr {
-    background-color: #c52127;
-    color: white;
-}
-
-.schedule-table th, .schedule-table td {
-    padding: 12px 15px;
+    gap: 0.5rem;
     text-align: left;
-    border-bottom: 1px solid #ddd;
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+}
+.profile-details strong {
+    color: var(--text-primary);
 }
 
-.schedule-table th {
-    font-weight: bold;
-    font-size: 1rem;
+/* Estilos para CoachCard.js */
+.coach-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 }
-
-.schedule-table tbody tr:nth-child(even) {
-    background-color: #f8f8f8;
+.coach-details {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
 }
-
-.schedule-table tbody tr:hover {
-    background-color: #f1f1f1;
+.coach-details strong {
+    font-size: 1.1rem;
 }
-
-.event-list-item {
-    padding: 12px 20px;
-    border-radius: 8px;
-    margin-bottom: 10px;
-    font-weight: bold;
+.unread-indicator {
+    background-color: var(--ipd-red-secondary);
     color: white;
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    font-size: 0.8rem;
+    font-weight: bold;
     display: flex;
-    justify-content: space-between;
+    justify-content: center;
     align-items: center;
 }
-
-.event-list-item.rojo { background-color: #e74c3c; }
-.event-list-item.verde { background-color: #2ecc71; }
-.event-list-item.azul { background-color: #3498db; }
-.event-list-item.naranja { background-color: #f39c12; }
-
-
-.header-actions {
-    display: flex;
-    align-items: center;
-    gap: 15px;
-}
-
-/* === ESTILOS PARA LA TARJETA DEL ENTRENADOR Y EL INDICADOR === */
-
-.assigned-coaches .coach-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 10px 0;
-    border-bottom: 1px dashed #eee;
-}
-
-.assigned-coaches .coach-item:last-child {
-    border-bottom: none;
-}
-
-.assigned-coaches .coach-details {
-    display: flex;
-    align-items: center;
-    gap: 10px; /* Espacio entre el nombre y el indicador */
-    flex-grow: 1; /* Permite que el nombre ocupe el espacio disponible */
-}
-
-.assigned-coaches .coach-details strong {
-    color: #333;
-    font-size: 1rem;
-}
-
-.assigned-coaches .action-button {
-    background-color: #007bff;
+.chat-button {
+    background-color: var(--ipd-red-primary);
     color: white;
     border: none;
-    padding: 8px 12px;
-    border-radius: 6px;
+    padding: 0.6rem 1rem;
+    border-radius: 8px;
     cursor: pointer;
-    font-size: 0.85rem;
+    font-size: 0.9rem;
+    font-weight: 500;
     transition: background-color 0.2s ease;
-    flex-shrink: 0; /* Evita que el botón se encoja */
+}
+.chat-button:hover {
+    background-color: var(--ipd-red-secondary);
 }
 
-.assigned-coaches .action-button:hover {
-    background-color: #0056b3;
+/* Grid para la sección principal */
+.portal-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem;
 }
 
-.unread-indicator {
-  background-color: #dc3545; /* Rojo */
-  color: white;
-  border-radius: 50%;
-  width: 24px;
-  height: 24px;
-  font-size: 0.8rem;
-  font-weight: bold;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  flex-shrink: 0;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+/* Estilos para WeeklySchedule.js */
+.schedule-container, .events-container {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
 }
-
-
-/* === MEDIA QUERIES === */
-
-@media (max-width: 992px) {
-    .portal-body {
-        flex-direction: column;
-        align-items: center;
-        padding: 20px;
-    }
-    .profile-sidebar, .main-content {
-        flex: 0 0 100%;
-        max-width: 600px;
-        min-width: unset;
-    }
-    .portal-header {
-        padding: 15px 20px;
-    }
+.schedule-item, .event-item {
+    display: flex;
+    flex-direction: column;
+    padding: 1rem;
+    border-radius: 8px;
+    background-color: var(--portal-bg);
+    border-left: 4px solid var(--ipd-red-primary);
 }
-
-@media (max-width: 576px) {
-    .portal-header h2 {
-        font-size: 1.4rem;
-    }
-    .logout-button {
-        padding: 8px 15px;
-        font-size: 0.9rem;
-    }
-    .info-card, .profile-card {
-        padding: 15px;
-    }
-    .info-card h4 {
-        font-size: 1.1rem;
-        margin-bottom: 15px;
-    }
-    .schedule-table th, .schedule-table td {
-        padding: 8px 10px;
-        font-size: 0.9rem;
-    }
+.schedule-day, .event-date {
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 0.25rem;
+}
+.schedule-time {
+    color: var(--ipd-red-secondary);
+    font-size: 0.9rem;
+    margin-bottom: 0.5rem;
+}
+.schedule-activity, .event-title {
+    color: var(--text-secondary);
+}
+.empty-message {
+    color: var(--text-secondary);
+    text-align: center;
+    padding: 1rem;
 }

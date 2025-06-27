@@ -1,0 +1,122 @@
+/* Contenedor general para las vistas del deportista */
+.deportista-view-container {
+    animation: fadeIn 0.5s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Encabezado estándar para las vistas */
+.view-header {
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.view-header h1 {
+    margin: 0;
+    color: #1a202c;
+    font-size: 2rem;
+    font-weight: 700;
+}
+
+.view-header .welcome-message {
+    color: #718096;
+    font-size: 1rem;
+    margin-top: 0.25rem;
+}
+
+/* Grid para la vista de perfil */
+.profile-view-content {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+    gap: 2rem;
+    align-items: flex-start;
+}
+
+.profile-section {
+    background-color: #ffffff;
+    padding: 2rem;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+
+/* Estilos para los formularios reutilizados para que encajen bien */
+.profile-section .form-container {
+    padding: 0;
+    margin: 0;
+    box-shadow: none;
+    background: none;
+}
+
+.profile-section .form-container h3 {
+    margin-top: 0;
+    margin-bottom: 1.5rem;
+    font-size: 1.25rem;
+    color: #333;
+}
+
+.success-message {
+    padding: 10px 15px;
+    margin-top: 1rem;
+    border-radius: 6px;
+    background-color: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+    text-align: center;
+    font-weight: bold;
+}
+
+/* Estilos genéricos para el form-group que se reutilizan en los formularios */
+.form-group {
+    margin-bottom: 20px;
+}
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: #34495e;
+}
+.form-group input {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #bdc3c7;
+    border-radius: 4px;
+    box-sizing: border-box;
+    font-size: 1rem;
+}
+.form-buttons {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 30px;
+}
+.submit-button, .cancel-button {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    font-weight: bold;
+    cursor: pointer;
+}
+.submit-button {
+    background-color: #27ae60;
+    color: white;
+}
+.submit-button:disabled {
+    background-color: #bdc3c7;
+}
+.cancel-button {
+    background-color: #e0e0e0;
+    color: #333;
+}
+.error-message {
+    color: #c0392b;
+    background-color: #fdd;
+    border: 1px solid #c0392b;
+    padding: 10px;
+    border-radius: 4px;
+    margin-top: 20px;
+    text-align: center;
+}
