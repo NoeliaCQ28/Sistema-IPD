@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
+// --- 1. IMPORTAR LINK ---
+import { Link } from 'react-router-dom'; 
 import logo from '../../assets/logo.png';
 import './LoginForm.css';
-import { FaEye, FaEyeSlash } from 'react-icons/fa'; // Importa los iconos de ojo
+import { FaEye, FaEyeSlash } from 'react-icons/fa';
 
 
 const LoginForm = () => {
@@ -10,7 +12,7 @@ const LoginForm = () => {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [showPassword, setShowPassword] = useState(false); // Nuevo estado para la visibilidad
+  const [showPassword, setShowPassword] = useState(false);
 
   const { login } = useAuth();
 
@@ -29,7 +31,7 @@ const LoginForm = () => {
   };
 
   const togglePasswordVisibility = () => {
-    setShowPassword(!showPassword); // Cambia el estado de visibilidad
+    setShowPassword(!showPassword);
   };
 
   return (
@@ -55,20 +57,28 @@ const LoginForm = () => {
           />
         </div>
         
-        <div className="form-group password-group"> {/* Añadimos una nueva clase aquí */}
+        <div className="form-group password-group">
           <label htmlFor="password">Contraseña</label>
           <input 
-type={showPassword ? 'text' : 'password'} /* Cambia el tipo según el estado */            id="password" 
+            type={showPassword ? 'text' : 'password'}
+            id="password" 
             value={password} 
             onChange={(e) => setPassword(e.target.value)} 
             required 
           />
           <span 
             className="password-toggle" 
-            onClick={togglePasswordVisibility} // Maneja el clic para alternar
+            onClick={togglePasswordVisibility}
           >
-            {showPassword ? <FaEyeSlash /> : <FaEye />} {/* Muestra el icono según el estado */}
+            {showPassword ? <FaEyeSlash /> : <FaEye />}
           </span>
+        </div>
+        
+        {/* --- 2. AÑADIR ENLACE AQUÍ --- */}
+        <div style={{ textAlign: 'right', marginBottom: '20px' }}>
+          <Link to="/forgot-password" style={{ color: '#666', fontSize: '0.9rem', textDecoration: 'none' }}>
+            ¿Olvidaste tu contraseña?
+          </Link>
         </div>
         
         <button type="submit" className="login-button" disabled={isLoading}>

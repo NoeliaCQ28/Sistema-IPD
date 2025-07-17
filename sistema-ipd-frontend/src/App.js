@@ -4,6 +4,10 @@ import { AuthProvider } from './context/AuthContext';
 import ProtectedRoute from './components/auth/ProtectedRoute';
 import LoginPage from './pages/LoginPage';
 
+// --- PÁGINAS DE AUTENTICACIÓN ---
+import ForgotPasswordPage from './pages/ForgotPasswordPage';
+import ResetPasswordPage from './pages/ResetPasswordPage';
+
 // --- LAYOUTS PRINCIPALES ---
 import AdminLayout from './layouts/AdminLayout';
 import EntrenadorLayout from './pages/entrenador/EntrenadorLayout';
@@ -40,7 +44,6 @@ import DeportistaDashboardView from './pages/deportista/DeportistaDashboardView'
 import DeportistaPerfilView from './pages/deportista/views/DeportistaPerfilView';
 import DeportistaHorariosView from './pages/deportista/views/DeportistaHorariosView';
 import DeportistaMensajeriaView from './pages/deportista/views/DeportistaMensajeriaView';
-// --- CORRECCIÓN DE NOMBRE DE COMPONENTE ---
 import DeportistaTorneosView from './pages/deportista/views/DeportistaTorneosView';
 
 // --- COMPONENTES REUTILIZABLES ---
@@ -53,6 +56,8 @@ function App() {
       <BrowserRouter>
         <Routes>
           <Route path="/login" element={<LoginPage />} />
+          <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+          <Route path="/reset-password" element={<ResetPasswordPage />} />
 
           {/* RUTAS PROTEGIDAS PARA ADMINISTRADOR */}
           <Route element={<ProtectedRoute role="ADMINISTRADOR" />}>
@@ -108,7 +113,6 @@ function App() {
               <Route path="horarios" element={<DeportistaHorariosView />} />
               <Route path="progresos" element={<ProgresoHistorial />} />
               <Route path="mensajeria" element={<DeportistaMensajeriaView />} />
-              {/* --- CORRECCIÓN DE NOMBRE DE COMPONENTE --- */}
               <Route path="torneos" element={<DeportistaTorneosView />} />
             </Route>
           </Route>
