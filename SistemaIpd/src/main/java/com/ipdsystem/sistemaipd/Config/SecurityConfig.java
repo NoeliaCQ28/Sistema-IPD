@@ -31,12 +31,11 @@ public class SecurityConfig {
                 .cors(Customizer.withDefaults())
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(authorize -> authorize
-                        // --- CAMBIO CLAVE ---
-                        // Permite la conexión inicial al WebSocket (handshake),
-                        // la autenticación real se hará en WebSocketAuthInterceptor.
+                        // --- ENDPOINTS PÚBLICOS ---
                         .requestMatchers("/ws/**").permitAll()
+                        .requestMatchers("/api/v1/password/**").permitAll()
 
-                        // Rutas Generales y de Autenticación
+                        // --- ENDPOINTS AUTENTICADOS ---
                         .requestMatchers("/api/v1/auth/me", "/api/v1/profile/**").authenticated()
 
                         // Rutas de Eventos
