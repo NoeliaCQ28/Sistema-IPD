@@ -1,17 +1,27 @@
-# Usamos una imagen base oficial de OpenJDK con Java 17.
-# 'slim' es una versión ligera, ideal para contenedores.
-FROM openjdk:17-slim
+# Etapa 1: Construcción con Maven
+# Usamos una imagen que ya tiene Java y Maven para compilar el proyecto.
+FROM maven:3.8.5-openjdk-17 AS build
 
-# Argumento para el nombre del archivo JAR. Maven lo crea en la carpeta 'target'.
-ARG JAR_FILE=target/*.jar
+# Establecemos el directorio de trabajo dentro del contenedor
+WORKDIR /app
 
-# Copiamos el archivo JAR desde la carpeta 'target' al interior del contenedor
-# y lo renombramos a 'app.jar' para tener un nombre fijo.
-COPY ${JAR_FILE} app.jar
+# Copiamos solo el pom.xml para descargar las dependencias y acelerar futuras builds
+COPY pom.xml .
+RUN mvn dependency:go-offline
 
-# Exponemos el puerto en el que se ejecuta nuestra aplicación Spring Boot (8081).
+# Copiamos el resto del código fuente y construimos el .jar
+COPY src ./src
+RUN mvn package -DskipTests
+
+# Etapa 2: Ejecución
+# Usamos una imagen ligera que solo tiene el entorno de ejecución de Java
+FROM openjdk:17-jdk-slim
+
+# Copiamos el .jar construido de la etapa anterior
+COPY --from=build /app/target/*.jar app.jar
+
+# Exponemos el puerto 8081
 EXPOSE 8081
 
-# El comando que se ejecutará cuando el contenedor se inicie.
-# Simplemente ejecuta la aplicación.
-ENTRYPOINT ["java", "-jar", "/app.jar"]
+# El comando para ejecutar la aplicación cuando el contenedor inicie
+ENTRYPOINT ["java","-jar","/app.jar"]
