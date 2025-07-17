@@ -4,8 +4,8 @@ import { Bar } from 'react-chartjs-2';
 import Papa from 'papaparse';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
+import logo from '../../../../assets/logo.png'; // <-- IMPORTANTE: Se importa el logo como imagen
 
-// --- NUEVAS IMPORTACIONES PARA REGISTRAR COMPONENTES DE CHART.JS ---
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -19,8 +19,6 @@ import {
 import './ReporteAsistenciaView.css';
 import '../Views.css'; 
 
-// --- REGISTRO DE COMPONENTES ---
-// Esto le dice a Chart.js qué elementos debe saber cómo dibujar.
 ChartJS.register(
   CategoryScale,
   LinearScale,
@@ -49,7 +47,7 @@ const ReporteAsistenciaView = () => {
 
         try {
             const params = new URLSearchParams({ fechaInicio, fechaFin });
-            const response = await fetch(`http://localhost:8081/api/v1/analisis/asistencia/reporte?${params.toString()}`, {
+            const response = await fetch(`/api/v1/analisis/asistencia/reporte?${params.toString()}`, {
                 headers: { 'Authorization': authHeader }
             });
             if (!response.ok) throw new Error('No se pudo generar el reporte.');
@@ -91,7 +89,7 @@ const ReporteAsistenciaView = () => {
                 display: false
             }
         },
-        maintainAspectRatio: false // Añadido para mejor responsividad
+        maintainAspectRatio: false
     };
 
     const handleExportCSV = () => {
@@ -113,21 +111,50 @@ const ReporteAsistenciaView = () => {
     };
 
     const handleExportPDF = () => {
-        if (reporteData.length === 0) return;
+        if (reporteData.length === 0) {
+            alert("No hay datos para exportar a PDF.");
+            return;
+        }
+
         const doc = new jsPDF();
-        doc.setFontSize(18);
-        doc.text("Reporte de Asistencia", 14, 22);
+        const pageWidth = doc.internal.pageSize.width || doc.internal.pageSize.getWidth();
+
+        // --- ENCABEZADO PERSONALIZADO ---
+        doc.setFillColor(197, 33, 39);
+        doc.rect(0, 0, pageWidth, 25, 'F');
+        
+        // --- CORRECCIÓN: Se usa la variable 'logo' importada ---
+        doc.addImage(logo, 'PNG', 14, 5, 30, 15);
+        
+        doc.setFontSize(16);
+        doc.setTextColor(255, 255, 255);
+        doc.setFont('helvetica', 'bold');
+        doc.text("Reporte de Asistencia", 50, 16);
+
         doc.setFontSize(11);
         doc.setTextColor(100);
-        doc.text(`Periodo: ${fechaInicio} al ${fechaFin}`, 14, 30);
+        doc.setFont('helvetica', 'normal');
+        doc.text(`Generado por: ${user.nombres} ${user.apellidos}`, 14, 35);
+        doc.text(`Periodo del reporte: ${fechaInicio} al ${fechaFin}`, 14, 42);
+
+        const head = [['Deportista', 'Presente', 'Ausente', 'Justificado', 'Total', '% Asistencia']];
+        const body = reporteData.map(d => [
+            d.deportistaNombre,
+            d.totalPresente,
+            d.totalAusente,
+            d.totalJustificado,
+            d.totalRegistros,
+            `${d.porcentajeAsistencia}%`
+        ]);
 
         autoTable(doc, {
-            head: [['Deportista', 'Presente', 'Ausente', 'Justificado', 'Total', '% Asistencia']],
-            body: reporteData.map(d => [d.deportistaNombre, d.totalPresente, d.totalAusente, d.totalJustificado, d.totalRegistros, `${d.porcentajeAsistencia}%`]),
-            startY: 40,
+            head: head,
+            body: body,
+            startY: 50,
             theme: 'striped',
             headStyles: { fillColor: [44, 62, 80] }
         });
+
         doc.save('reporte_asistencia.pdf');
     };
 
